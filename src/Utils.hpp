@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Geode/Bindings.hpp>
-
 using namespace geode::prelude;
-using namespace geode::cocos;
 
 namespace Utils {
 	template<class T> T getSetting(std::string setting, T type);

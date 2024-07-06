@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Geode/Bindings.hpp>
-#include "Manager.hpp"
 
 using namespace geode::prelude;
 using namespace geode::cocos;

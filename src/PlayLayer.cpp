@@ -7,7 +7,7 @@ using namespace geode::prelude;
 
 static std::regex tapsCountRegex(R"(Taps: (\d+)\n)", std::regex::optimize | std::regex::icase);
 static std::regex timeLabelRegex(R"(Time: (\d+(\.\d+)?))", std::regex::optimize | std::regex::icase);
-static std::regex asciiOnlyRegex(R"([\x00-\x7F]{0,20})", std::regex::optimize | std::regex::icase);
+static std::regex asciiOnlyMaxTwentyRegex(R"([\x00-\x7F]{0,20})", std::regex::optimize | std::regex::icase);
 
 class $modify(MyPlayLayer, PlayLayer) {
 	struct Fields {
@@ -15,6 +15,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool appliedBlending = false;
 		bool appliedChroma = false;
 		bool isLevelComplete = false;
+		bool positionSet = false;
+		bool textAlignmentSet = false;
+		bool scaleSet = false;
+		bool opacitySet = false;
 		CCNode* debugText = nullptr;
 	};
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
@@ -25,18 +29,12 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (!isPlat) { status = "Ship"; }
 			else { status = "Jetpack"; }
 		}
-		else if (thePlayer->m_isDart) {
-			if (!isPlat) { status = "Wave"; }
-			else {
-				if (m_fields->manager->gameVersion != "2.210") { status = "Wave?"; }
-				else { status = "Wave*"; }
-			}
-		}
-		else if (thePlayer->m_isSwing) {
-			if (!isPlat) { status = "Swing"; }
-			else {
-				if (m_fields->manager->gameVersion != "2.210") { status = "Swing?"; }
-				else { status = "Swing*"; }
+		else if (thePlayer->m_isDart || thePlayer->m_isSwing) {
+			if (thePlayer->m_isDart) { status = "Wave"; }
+			else { status = "Swing"; }
+			if (isPlat) {
+				if (m_fields->manager->gameVersion != "2.210") { status = status + "*"; }
+				else { status = status + "?"; }
 			}
 		}
 		else if (thePlayer->m_isBall) { status = "Ball"; }
@@ -51,27 +49,27 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (thePlayer->m_isPlatformer) {
 			if (thePlayer->m_isUpsideDown) {
 				if (thePlayer->m_isSideways) {
-					if (compactDirs) {status = "->] " + status;}
+					if (compactDirs) { status = "->] " + status; }
 					else { status = "Rightwards " + status; }
 				}
 				else { status = "Flipped " + status; }
 			} else if (thePlayer->m_isSideways) {
-				if (compactDirs) {status = "[<- " + status;}
+				if (compactDirs) { status = "[<- " + status; }
 				else { status = "Leftwards " + status; }
 			}
 		} else {
 			if (thePlayer->m_isUpsideDown) { status = "Flipped " + status; }
 			if (thePlayer->m_isSideways) {
 				if (thePlayer->m_isGoingLeft) {
-					if (compactDirs) {status = "\\/ " + status;}
+					if (compactDirs) { status = "\\/ " + status; }
 					else { status = "Downwards " + status; }
 				}
 				else {
-					if (compactDirs) {status = "/\\ " + status;}
+					if (compactDirs) { status = "/\\ " + status; }
 					else { status = "Upwards " + status; }
 				}
 			} else if (thePlayer->m_isGoingLeft) {
-				if (compactDirs) {status = "<- " + status;}
+				if (compactDirs) { status = "<- " + status; }
 				else { status = "Reversed " + status; }
 			}
 		}
@@ -141,9 +139,13 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return nullptr;
 	}
 	void onQuit() {
+		m_fields->isLevelComplete = false;
 		m_fields->appliedBlending = false;
 		m_fields->appliedChroma = false;
-		m_fields->isLevelComplete = false;
+		m_fields->positionSet = false;
+		m_fields->textAlignmentSet = false;
+		m_fields->scaleSet = false;
+		m_fields->opacitySet = false;
 		m_fields->debugText = nullptr;
 		PlayLayer::onQuit();
 	}
@@ -185,10 +187,38 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextNode->runAction(repeat);
 			m_fields->appliedChroma = true;
 		}
-		if (Utils::getBool("maxAlphaDebugText")) {
-			debugTextNode->setOpacity(255);
-		} else {
-			debugTextNode->setOpacity(Utils::getInt("debugTextAlpha"));
+		if (!m_fields->opacitySet) {
+			if (Utils::getBool("maxAlphaDebugText")) {
+				debugTextNode->setOpacity(255);
+			} else {
+				debugTextNode->setOpacity(Utils::getInt("debugTextAlpha"));
+			}
+			m_fields->opacitySet = true;
+		}
+		if (!m_fields->textAlignmentSet && Utils::getBool("textAlignRight")) {
+			debugTextNode->setAlignment(CCTextAlignment::kCCTextAlignmentRight);
+			m_fields->textAlignmentSet = true;
+		}
+		if (!m_fields->scaleSet) {
+			if (Utils::getBool("spaceUKScale")) {
+				debugTextNode->setScale(0.5 * (940.f / 1004.f));
+			} else {
+				debugTextNode->setScale(Utils::getDouble("customScale"));
+			}
+			m_fields->scaleSet = true;
+		}
+		if (!m_fields->positionSet && Utils::getBool("positionAlignRight") || Utils::getBool("positionAlignBottom")) {
+			float anchorPointX = Utils::getBool("positionAlignRight") ? 1.f : 0.f;
+			float anchorPointY = Utils::getBool("positionAlignBottom") ? 1.f : 0.f;
+			debugTextNode->setAnchorPoint({anchorPointX, anchorPointY});
+			auto windowSize = CCDirector::get()->getWinSize();
+			if (Utils::getBool("positionAlignRight")) {
+				debugTextNode->setPositionX(windowSize.width * .95f);
+			}
+			if (Utils::getBool("positionAlignBottom")) {
+				debugTextNode->setPositionY(5);
+			}
+			m_fields->positionSet = true;
 		}
 		std::string debugTextContents = debugTextNode->getString();
 		if (Utils::getBool("logDebugText")) {
@@ -197,9 +227,11 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (Utils::getBool("currentChannel")) {
 			debugTextContents = std::regex_replace(debugTextContents, std::regex("\n-- Audio --"), fmt::format("\nChannel: {}\n\r-- Audio --", m_gameState.m_currentChannel));
 		}
+		#ifndef __APPLE__
 		if (Utils::getBool("lastPlayedSong")) {
 			debugTextContents = std::regex_replace(debugTextContents, std::regex("\n(\r)?-- Audio --\nSongs: "), fmt::format("\n-- Audio --\nLast Song: {}\nLast SFX: {}\nSongs: ", m_fields->manager->lastPlayedSong, m_fields->manager->lastPlayedEffect));
 		}
+		#endif
 		if (Utils::getBool("jumps")) {
 			std::smatch match;
 			if (std::regex_search(debugTextContents, match, tapsCountRegex)) {
@@ -223,7 +255,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 					fmt::format(
 						"Time: {} [{}]\nAttempt: ",
 						match[1].str(),
-						fmt::format("{}", m_gameState.m_levelTime, 2)
+						fmt::format("{:.{}f}", m_gameState.m_levelTime, 2)
 					)
 				); // attempt time from playlayer gamestate member: m_gameState.m_levelTime
 			}
@@ -255,26 +287,21 @@ class $modify(MyPlayLayer, PlayLayer) {
 			}
 		}
 		if (Utils::getBool("playerStatus")) {
-			if (m_gameState.m_isDualMode) {
-				debugTextContents = std::regex_replace(
-					debugTextContents,
-					std::regex("\n-- Audio --"),
-					fmt::format(
-						"\nP1 Status: {}\nP2 Status: {}\n-- Audio --",
-						MyPlayLayer::buildPlayerStatusString(m_player1),
-						MyPlayLayer::buildPlayerStatusString(m_player2)
-					)
+			std::string formattedPlayerStatus = (m_gameState.m_isDualMode) ?
+				fmt::format(
+					"\nP1 Status: {}\nP2 Status: {}\n-- Audio --",
+					MyPlayLayer::buildPlayerStatusString(m_player1),
+					MyPlayLayer::buildPlayerStatusString(m_player2)
+				) :
+				fmt::format(
+					"\nStatus: {}\n-- Audio --",
+					MyPlayLayer::buildPlayerStatusString(m_player1)
 				);
-			} else {
-				debugTextContents = std::regex_replace(
-					debugTextContents,
-					std::regex("\n-- Audio --"),
-					fmt::format(
-						"\nStatus: {}\n-- Audio --",
-						MyPlayLayer::buildPlayerStatusString(m_player1)
-					)
-				);
-			}
+			debugTextContents = std::regex_replace(
+				debugTextContents,
+				std::regex("\n-- Audio --"),
+				formattedPlayerStatus
+			);
 		}
 		if (Utils::getBool("levelTraits")) {
 			debugTextContents = std::regex_replace(
@@ -303,11 +330,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = std::regex_replace(debugTextContents, std::regex("-- Perf --"), "-- Performance --");
 		}
 		if (Utils::getBool("tapsToClicks")) {
-			if (m_level->isPlatformer()) {
-				debugTextContents = std::regex_replace(debugTextContents, std::regex("Taps: "), "Actions: ");
-			} else {
-				debugTextContents = std::regex_replace(debugTextContents, std::regex("Taps: "), "Clicks: ");
-			}
+			std::string actionsOrClicks = (m_level->isPlatformer()) ? "Actions: " : "Clicks: ";
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("Taps: "), actionsOrClicks);
 		}
 		if (Utils::getBool("fixLevelIDLabel")) {
 			debugTextContents = std::regex_replace(debugTextContents, std::regex("LevelID: "), "Level ID: ");
@@ -337,24 +361,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::string customFooter = Utils::getString("customFooter");
 		if (!customFooter.empty()) {
 			std::smatch match;
-			if (std::regex_search(customFooter, match, asciiOnlyRegex)) {
+			if (std::regex_search(customFooter, match, asciiOnlyMaxTwentyRegex)) {
 				debugTextContents = debugTextContents + fmt::format("\n-- [{}] --", customFooter.substr(20));
-			}
-		}
-		if (Utils::getBool("textAlignRight")) {
-			debugTextNode->setAlignment(kCCTextAlignmentRight);
-		}
-		debugTextNode->setScale(Utils::getDouble("customScale"));
-		float anchorPointX = Utils::getBool("positionAlignRight") ? 1.f : 0.f;
-		float anchorPointY = Utils::getBool("positionAlignBottom") ? 1.f : 0.f;
-		debugTextNode->setAnchorPoint({anchorPointX, anchorPointY});
-		if (Utils::getBool("positionAlignRight") || Utils::getBool("positionAlignBottom")) {
-			auto windowSize = CCDirector::get()->getWinSize();
-			if (Utils::getBool("positionAlignRight")) {
-				debugTextNode->setPositionX(windowSize.width * .95f);
-			}
-			if (Utils::getBool("positionAlignBottom")) {
-				debugTextNode->setPositionY(5);
 			}
 		}
 		if (Utils::getBool("logDebugText")) {

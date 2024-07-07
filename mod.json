@@ -1,5 +1,5 @@
 {
-	"geode": "3.1.1",
+	"geode": "3.2.0",
 	"gd": {
 		"win": "2.206",
 		"android": "2.206",
@@ -70,9 +70,9 @@
 	},
 	"customScale": {
 		"name": "Scale",
-		"description": "Sets the scale of the info label.",
+		"description": "Sets the scale of the info label. Default is 0.5 (as seen in vanilla Geometry Dash).",
 		"type": "float",
-		"default": 0.47,
+		"default": 0.5,
 		"min": 0.15,
 		"max": 1.00,
 		"control": {
@@ -84,6 +84,12 @@
 			"big-arrow-step": 0,
 			"slider-step": 0.01
 		}
+	},
+	"spaceUKScale": {
+		"name": "SpaceUK Scale",
+		"description": "Sets your debug scale to <cj>(0.5 * (940 / 1004))</c>. This toggle enables the default scale for the info label previously seen in in ErysEdits.\n\n<cy>(If this is enabled, your setting for \"Scale\" will be ignored.)</c>",
+		"type": "bool",
+		"default": false
 	},
 	"textAlignRight": {
 		"name": "Align Right (Text Content)",

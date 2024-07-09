@@ -179,9 +179,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 		);
 		std::string shake = gameState.m_cameraShakeEnabled ?
 			fmt::format(
-				"\nShake: {:.{}f}",
-				gameState.m_cameraShakeFactor,
-				2
+				"\nShake: {:.2f}",
+				gameState.m_cameraShakeFactor
 			) : "";
 		return fmt::format(
 			"-- Camera --\n{}\n{}\n{}\n{}{}",
@@ -350,14 +349,14 @@ class $modify(MyPlayLayer, PlayLayer) {
 					fmt::format(
 						"Time: {} [{}]\nAttempt: ",
 						match[1].str(),
-						fmt::format("{:.{}f}", m_gameState.m_levelTime, 2)
+						fmt::format("{:.2f}", m_gameState.m_levelTime)
 					)
 				); // attempt time from playlayer gamestate member: m_gameState.m_levelTime
 			}
 		}
 		if (Utils::getBool("accuratePosition")) {
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nX: (\\d)+\n"), fmt::format("\nX: {:.{}f}\n", m_player1->m_position.x, 4));
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nY: (\\d)+\n"), fmt::format("\nY: {:.{}f}\n", m_player1->m_position.y, 4));
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nX: (\\d)+\n"), fmt::format("\nX: {:.4f}\n", m_player1->m_position.x));
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nY: (\\d)+\n"), fmt::format("\nY: {:.4f}\n", m_player1->m_position.y));
 		}
 		if (Utils::getBool("conditionalValues")) {
 			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nTimeWarp: 1\n"), "\n");

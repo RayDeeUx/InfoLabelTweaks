@@ -22,6 +22,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		CCNode* debugText = nullptr;
 	};
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
+		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) { return ""; }
 		std::string status = "Unknown";
 		bool isPlat = m_level->isPlatformer();
 		bool compactDirs = Utils::getBool("compactDirections");
@@ -88,6 +89,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return fmt::format("{:.1f}x ", thePlayer->m_playerSpeed) + status;
 	}
 	std::string buildLevelTraitsString() {
+		if (!Utils::modEnabled() || !Utils::getBool("levelTraits")) { return ""; }
 		std::string level = "Unknown";
 		if (m_level->isPlatformer()) {
 			level = "Platformer";
@@ -121,6 +123,99 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (m_fields->isLevelComplete) { level = level + " <Completed>"; }
 
 		return level;
+	}
+	std::string buildCameraPropertiesString(GJGameState gameState) {
+		if (!Utils::modEnabled() || !Utils::getBool("cameraProperties")) { return ""; }
+		bool isCompactCam = Utils::getBool("compactCamera");
+		bool currentZoomNotEqualsTarget = gameState.m_cameraZoom != gameState.m_targetCameraZoom;
+		bool currentAngleNotEqualsTarget = gameState.m_cameraAngle != gameState.m_targetCameraAngle;
+		std::string zoom = fmt::format("Zoom: {:.{.2}f}", gameState.m_cameraZoom);
+		if (currentZoomNotEqualsTarget) {
+			zoom = zoom + fmt::format(" [{:.{.2}f}]", gameState.m_targetCameraZoom);
+		}
+		std::string angle = fmt::format("Angle: {:.{.2}f}", gameState.m_cameraAngle);
+		if (currentAngleNotEqualsTarget) {
+			angle = angle + fmt::format(" [{:.{.2}f}]", gameState.m_targetCameraAngle);
+		}
+		std::string zoomAngleSeparator =
+			(isCompactCam && !currentZoomNotEqualsTarget && !currentAngleNotEqualsTarget) ?
+				" | " : "\n";
+		std::string zoomAndAngle =
+			fmt::format(
+				"{}{}{}",
+				zoom,
+				zoomAngleSeparator,
+				angle
+			)
+		;
+		std::string position = !isCompactCam ?
+			fmt::format(
+				"Position X: {:.{.2}f}\nPosition Y: {:.{.2}f}",
+				gameState.m_cameraPosition.x,
+				gameState.m_cameraPosition.y
+			) : fmt::format(
+				"Pos: ({:.{.2}f}, {:.{.2}f})",
+				gameState.m_cameraPosition.x,
+				gameState.m_cameraPosition.y
+			)
+		;
+		std::string offset = !isCompactCam ?
+			fmt::format(
+				"Offset X: {:.{.2}f}\nOffset Y: {:.{.2}f}",
+				gameState.m_cameraOffset.x,
+				gameState.m_cameraOffset.y
+			) : fmt::format(
+				"Offset: ({:.{.2}f}, {:.{.2}f})",
+				gameState.m_cameraOffset.x,
+				gameState.m_cameraOffset.y
+			)
+		;
+		std::string edge = fmt::format(
+			"Edge: {} / {} / {} / {}",
+			gameState.m_cameraEdgeValue0,
+			gameState.m_cameraEdgeValue1,
+			gameState.m_cameraEdgeValue2,
+			gameState.m_cameraEdgeValue3
+		);
+		std::string shake = gameState.m_cameraShakeEnabled ?
+			fmt::format(
+				"\nShake: {:.{}f}",
+				gameState.m_cameraShakeFactor,
+				2
+			) : "";
+		return fmt::format(
+			"-- Camera --\n{}\n{}\n{}\n{}{}",
+			zoomAndAngle,
+			position,
+			offset,
+			edge,
+			shake
+		);
+	}
+	std::string buildGeodeLoaderString(Manager* manager) {
+		if (!Utils::modEnabled() || !Utils::getBool("geodeInfo")) { return ""; }
+		if (Utils::getBool("compactGeode")) {
+			return fmt::format(
+				"-- Geode v{} --\nGD v{} on {}\nMods: {} + {} = {} ({})",
+				manager->geodeVersion,
+				manager->gameVersion,
+				manager->platform,
+				manager->loadedMods,
+				manager->disabledMods,
+				manager->installedMods,
+				manager->problems
+			);
+		}
+		return fmt::format(
+			"-- Geode v{} --\nGD v{} on {}\nLoaded: {}\nDisabled: {}\nInstalled: {} ({} problems)",
+			manager->geodeVersion,
+			manager->gameVersion,
+			manager->platform,
+			manager->loadedMods,
+			manager->disabledMods,
+			manager->installedMods,
+			manager->problems
+		);
 	}
 	CCNode* findDebugTextNode() {
 		CCArrayExt<CCNode*> plArray = CCArrayExt<CCNode*>(getChildren());
@@ -345,24 +440,19 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (Utils::getBool("gameplayHeader")) {
 			debugTextContents = std::string("-- Gameplay --\n") + debugTextContents;
 		}
+		if (Utils::getBool("cameraProperties")) {
+			debugTextContents = debugTextContents +
+			MyPlayLayer::buildCameraPropertiesString(m_gameState) + "\n";
+		}
 		if (Utils::getBool("geodeInfo")) {
 			debugTextContents = debugTextContents +
-			fmt::format(
-				"-- Geode --\nGeode {} in GD {} ({})\nMods: {} + {} = {} ({})",
-				m_fields->manager->geodeVersion,
-				m_fields->manager->gameVersion,
-				m_fields->manager->platform,
-				m_fields->manager->loadedMods,
-				m_fields->manager->disabledMods,
-				m_fields->manager->installedMods,
-				m_fields->manager->problems
-			);
+			MyPlayLayer::buildGeodeLoaderString(m_fields->manager) + "\n";
 		}
 		std::string customFooter = Utils::getString("customFooter");
 		if (!customFooter.empty()) {
 			std::smatch match;
 			if (std::regex_search(customFooter, match, asciiOnlyMaxTwentyRegex)) {
-				debugTextContents = debugTextContents + fmt::format("\n-- [{}] --", customFooter.substr(20));
+				debugTextContents = debugTextContents + fmt::format("-- [{}] --", customFooter.substr(20));
 			}
 		}
 		if (Utils::getBool("logDebugText")) {

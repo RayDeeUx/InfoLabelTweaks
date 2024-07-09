@@ -17,7 +17,7 @@
 		"default": true
 	},
 	"blendingDebugText": {
-		"name": "Readable Mode",
+		"name": "Readable Mode (Stronger Blending)",
 		"description": "Make the info label easier to read across a far larger variety of scenarios.\n\n<cy>(Make sure to check out the other options below this one!)</c>",
 		"type": "bool",
 		"default": true
@@ -183,21 +183,33 @@
 	},
 	"lastPlayedSong": {
 		"name": "Show Most Recent Song/Effect",
-		"description": "Includes the filename of the most recently loaded song <cy>(and sound effect, if not on macOS)</c> in the Audio section.",
+		"description": "Includes the filename of the most recently loaded song in the Audio section.\n\n<cy>This setting is currently unavailable on macOS.</c>",
 		"type": "bool",
 		"default": true,
 		"platforms": ["windows", "android"]
 	},
 	"audioFromMods": {
 		"name": "Include Songs/Effects from Mods",
-		"description": "If \"Show Most Recent Song/Effect\" is enabled, songs and SFX file names from other Geode mods will appear in the Audio section. Disabling this will simply show \"[Geode mod]\" instead.",
+		"description": "If \"Show Most Recent Song/Effect\" is enabled, songs and SFX file names from other Geode mods will appear in the Audio section. Disabling this will simply show \"[Geode mod]\" instead.\n\n<cy>This setting is currently unavailable on macOS.</c>",
 		"type": "bool",
 		"default": true,
 		"platforms": ["windows", "android"]
 	},
+	"cameraProperties": {
+		"name": "Camera Properties",
+		"description": "Adds an additional section of info related to the camera's state (named \"Camera\"), including zoom, rotation, position, shake factor, and offset.",
+		"type": "bool",
+		"default": false
+	},
+	"geodeInfo": {
+		"name": "Geode Mod Loader Info",
+		"description": "Adds an additional section of info related to your Geode setup named \"Geode\".",
+		"type": "bool",
+		"default": false
+	},
 	"compactAudio": {
 		"name": "Compact \"Audio\" Section",
-		"description": "Condenses Song and SFX counts from the Audio section into one line.",
+		"description": "Condenses Song and SFX counts from the \"Audio\" section into one line.",
 		"type": "bool",
 		"default": true
 	},
@@ -207,15 +219,21 @@
 		"type": "bool",
 		"default": true
 	},
-	"conditionalValues": {
-		"name": "Conditional Labels",
-		"description": "Hides various values if unmodified. For reference:\n- TimeWarp if currently equal to 1.\n- Gravity if currently equal to 1.\n- Anything equal to either \"0\" or \"0 / 0\".",
+	"compactCamera": {
+		"name": "Compact \"Camera\" Section",
+		"description": "<cp>Whenever possible</c>, this option condenses the camera's Zoom and Angle info (from the mod's custom \"Camera\" section) into one line.\n\n<cy>\"Camera Properties\" needs to be enabled first.</c>",
 		"type": "bool",
 		"default": false
 	},
-	"geodeInfo": {
-		"name": "Geode Mod Loader Info",
-		"description": "Adds an additional section of info related to your Geode setup named \"Geode\".",
+	"compactGeode": {
+		"name": "Compact \"Geode\" Section",
+		"description": "Condenses your mod counts (from the mod's custom \"Geode\" section) into one line.\n\n<cy>\"Geode Mod Loader Info\" needs to be enabled first.</c>",
+		"type": "bool",
+		"default": false
+	},
+	"conditionalValues": {
+		"name": "Conditional Labels",
+		"description": "Hides various values if unmodified. For reference:\n- TimeWarp if currently equal to 1.\n- Gravity if currently equal to 1.\n- Anything equal to either \"0\" or \"0 / 0\".\n\n<cy>This also applies to this mod's \"-- Camera --\" section if this is enabled.</c>",
 		"type": "bool",
 		"default": false
 	},

@@ -124,8 +124,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		return level;
 	}
-	std::string buildCameraPropertiesString(GJGameState gameState) {
+	std::string buildCameraPropertiesString() {
 		if (!Utils::modEnabled() || !Utils::getBool("cameraProperties")) { return ""; }
+		GJGameState gameState = m_gameState;
 		bool isCompactCam = Utils::getBool("compactCamera");
 		bool currentZoomNotEqualsTarget = gameState.m_cameraZoom != gameState.m_targetCameraZoom;
 		bool currentAngleNotEqualsTarget = gameState.m_cameraAngle != gameState.m_targetCameraAngle;
@@ -441,7 +442,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		}
 		if (Utils::getBool("cameraProperties")) {
 			debugTextContents = debugTextContents +
-			MyPlayLayer::buildCameraPropertiesString(m_gameState) + "\n";
+			MyPlayLayer::buildCameraPropertiesString() + "\n";
 		}
 		if (Utils::getBool("geodeInfo")) {
 			debugTextContents = debugTextContents +

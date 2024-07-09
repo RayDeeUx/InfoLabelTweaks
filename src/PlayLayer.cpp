@@ -126,17 +126,17 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	std::string buildCameraPropertiesString() {
 		if (!Utils::modEnabled() || !Utils::getBool("cameraProperties")) { return ""; }
-		GJGameState gameState = m_gameState;
+		// GJGameState gameState = m_gameState;
 		bool isCompactCam = Utils::getBool("compactCamera");
-		bool currentZoomNotEqualsTarget = gameState.m_cameraZoom != gameState.m_targetCameraZoom;
-		bool currentAngleNotEqualsTarget = gameState.m_cameraAngle != gameState.m_targetCameraAngle;
-		std::string zoom = fmt::format("Zoom: {:.2f}", gameState.m_cameraZoom);
+		bool currentZoomNotEqualsTarget = m_gameState.m_cameraZoom != m_gameState.m_targetCameraZoom;
+		bool currentAngleNotEqualsTarget = m_gameState.m_cameraAngle != m_gameState.m_targetCameraAngle;
+		std::string zoom = fmt::format("Zoom: {:.2f}", m_gameState.m_cameraZoom);
 		if (currentZoomNotEqualsTarget) {
-			zoom = zoom + fmt::format(" [{:.2f}]", gameState.m_targetCameraZoom);
+			zoom = zoom + fmt::format(" [{:.2f}]", m_gameState.m_targetCameraZoom);
 		}
-		std::string angle = fmt::format("Angle: {:.2f}", gameState.m_cameraAngle);
+		std::string angle = fmt::format("Angle: {:.2f}", m_gameState.m_cameraAngle);
 		if (currentAngleNotEqualsTarget) {
-			angle = angle + fmt::format(" [{:.2f}]", gameState.m_targetCameraAngle);
+			angle = angle + fmt::format(" [{:.2f}]", m_gameState.m_targetCameraAngle);
 		}
 		std::string zoomAngleSeparator =
 			(isCompactCam && !currentZoomNotEqualsTarget && !currentAngleNotEqualsTarget) ?
@@ -152,36 +152,36 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::string position = !isCompactCam ?
 			fmt::format(
 				"Position X: {:.2f}\nPosition Y: {:.2f}",
-				gameState.m_cameraPosition.x,
-				gameState.m_cameraPosition.y
+				m_gameState.m_cameraPosition.x,
+				m_gameState.m_cameraPosition.y
 			) : fmt::format(
 				"Pos: ({:.2f}, {:.2f})",
-				gameState.m_cameraPosition.x,
-				gameState.m_cameraPosition.y
+				m_gameState.m_cameraPosition.x,
+				m_gameState.m_cameraPosition.y
 			)
 		;
 		std::string offset = !isCompactCam ?
 			fmt::format(
 				"Offset X: {:.2f}\nOffset Y: {:.2f}",
-				gameState.m_cameraOffset.x,
-				gameState.m_cameraOffset.y
+				m_gameState.m_cameraOffset.x,
+				m_gameState.m_cameraOffset.y
 			) : fmt::format(
 				"Offset: ({:.2f}, {:.2f})",
-				gameState.m_cameraOffset.x,
-				gameState.m_cameraOffset.y
+				m_gameState.m_cameraOffset.x,
+				m_gameState.m_cameraOffset.y
 			)
 		;
 		std::string edge = fmt::format(
 			"Edge: {} / {} / {} / {}",
-			gameState.m_cameraEdgeValue0,
-			gameState.m_cameraEdgeValue1,
-			gameState.m_cameraEdgeValue2,
-			gameState.m_cameraEdgeValue3
+			m_gameState.m_cameraEdgeValue0,
+			m_gameState.m_cameraEdgeValue1,
+			m_gameState.m_cameraEdgeValue2,
+			m_gameState.m_cameraEdgeValue3
 		);
-		std::string shake = gameState.m_cameraShakeEnabled ?
+		std::string shake = m_gameState.m_cameraShakeEnabled ?
 			fmt::format(
 				"\nShake: {:.2f}",
-				gameState.m_cameraShakeFactor
+				m_gameState.m_cameraShakeFactor
 			) : "";
 		return fmt::format(
 			"-- Camera --\n{}\n{}\n{}\n{}{}",

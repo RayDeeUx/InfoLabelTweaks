@@ -129,13 +129,13 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool isCompactCam = Utils::getBool("compactCamera");
 		bool currentZoomNotEqualsTarget = gameState.m_cameraZoom != gameState.m_targetCameraZoom;
 		bool currentAngleNotEqualsTarget = gameState.m_cameraAngle != gameState.m_targetCameraAngle;
-		std::string zoom = fmt::format("Zoom: {:.{.2}f}", gameState.m_cameraZoom);
+		std::string zoom = fmt::format("Zoom: {:.2f}", gameState.m_cameraZoom);
 		if (currentZoomNotEqualsTarget) {
-			zoom = zoom + fmt::format(" [{:.{.2}f}]", gameState.m_targetCameraZoom);
+			zoom = zoom + fmt::format(" [{:.2f}]", gameState.m_targetCameraZoom);
 		}
-		std::string angle = fmt::format("Angle: {:.{.2}f}", gameState.m_cameraAngle);
+		std::string angle = fmt::format("Angle: {:.2f}", gameState.m_cameraAngle);
 		if (currentAngleNotEqualsTarget) {
-			angle = angle + fmt::format(" [{:.{.2}f}]", gameState.m_targetCameraAngle);
+			angle = angle + fmt::format(" [{:.2f}]", gameState.m_targetCameraAngle);
 		}
 		std::string zoomAngleSeparator =
 			(isCompactCam && !currentZoomNotEqualsTarget && !currentAngleNotEqualsTarget) ?
@@ -150,22 +150,22 @@ class $modify(MyPlayLayer, PlayLayer) {
 		;
 		std::string position = !isCompactCam ?
 			fmt::format(
-				"Position X: {:.{.2}f}\nPosition Y: {:.{.2}f}",
+				"Position X: {:.2f}\nPosition Y: {:.2f}",
 				gameState.m_cameraPosition.x,
 				gameState.m_cameraPosition.y
 			) : fmt::format(
-				"Pos: ({:.{.2}f}, {:.{.2}f})",
+				"Pos: ({:.2f}, {:.2f})",
 				gameState.m_cameraPosition.x,
 				gameState.m_cameraPosition.y
 			)
 		;
 		std::string offset = !isCompactCam ?
 			fmt::format(
-				"Offset X: {:.{.2}f}\nOffset Y: {:.{.2}f}",
+				"Offset X: {:.2f}\nOffset Y: {:.2f}",
 				gameState.m_cameraOffset.x,
 				gameState.m_cameraOffset.y
 			) : fmt::format(
-				"Offset: ({:.{.2}f}, {:.{.2}f})",
+				"Offset: ({:.2f}, {:.2f})",
 				gameState.m_cameraOffset.x,
 				gameState.m_cameraOffset.y
 			)

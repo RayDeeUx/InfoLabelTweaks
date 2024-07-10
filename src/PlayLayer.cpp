@@ -226,21 +226,29 @@ class $modify(MyPlayLayer, PlayLayer) {
 			manager->problems
 		);
 	}
-	bool debugTextContains(std::string substring, bool withColon = true) {
-		if (!Utils::modEnabled() || m_fields->debugTextContentsManager.empty()) { return false; }
-		if (withColon) return (m_fields->debugTextContentsManager.find(fmt::format("{}: ", substring)) != std::string::npos);
-		return (m_fields->debugTextContentsManager.find(substring) != std::string::npos);
+	bool xContainedInY(std::string substring, std::string_view string, bool withColon = true) {
+		if (!Utils::modEnabled() || string.empty()) { return false; }
+		if (withColon) return (string.find(fmt::format("{}: ", substring)) != std::string::npos);
+		return (string.find(substring) != std::string::npos);
+	}
+	bool isInfoLabel(std::string candidateString) {
+		return (MyPlayLayer::xContainedInY("-- Audio --", candidateString, false) &&
+		       MyPlayLayer::xContainedInY("-- Perf --", candidateString, false) &&
+		       MyPlayLayer::xContainedInY("-- Area --", candidateString, false));
 	}
 	CCNode* findDebugTextNode() {
+		if (m_infoLabel != nullptr && MyPlayLayer::isInfoLabel(m_infoLabel->getString())) {
+			return m_infoLabel;
+		}
+		if (const auto infoLabelCandidate = typeinfo_cast<CCLabelBMFont*>(getChildByID("info-label"))) {
+			if (MyPlayLayer::isInfoLabel(infoLabelCandidate->getString())) {
+				return infoLabelCandidate;
+			}
+		}
 		CCArrayExt<CCNode*> plArray = CCArrayExt<CCNode*>(getChildren());
 		for (int i = plArray.size(); i-- > 0; ) {
 			if (const auto nodeCandidate = typeinfo_cast<CCLabelBMFont*>(plArray[i])) {
-				std::string nodeCandidateString = nodeCandidate->getString();
-				if (
-					nodeCandidateString.find("-- Audio --") != std::string::npos &&
-					nodeCandidateString.find("-- Perf --") != std::string::npos &&
-					nodeCandidateString.find("-- Area --") != std::string::npos
-				) {
+				if (MyPlayLayer::isInfoLabel(nodeCandidate->getString())) {
 					return nodeCandidate;
 				}
 			}
@@ -457,15 +465,15 @@ class $modify(MyPlayLayer, PlayLayer) {
 		}
 		if (Utils::getBool("compactGameplay")) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nTaps: ", " | Taps: ", debugTextContents); // Attempt and Taps
-			if (MyPlayLayer::debugTextContains("TimeWarp")) {
+			if (MyPlayLayer::xContainedInY("TimeWarp", m_fields->debugTextContentsManager)) {
 				debugTextContents = MyPlayLayer::replaceXWithYInZ("\nGravity: ", " | Gravity: ", debugTextContents); // TimeWarp and Gravity
 			}
-			if (MyPlayLayer::debugTextContains("Gradients")) {
+			if (MyPlayLayer::xContainedInY("Gradients", m_fields->debugTextContentsManager)) {
 				debugTextContents = MyPlayLayer::replaceXWithYInZ("\nParticles: ", " | Particles: ", debugTextContents); // Gradients and Particles
 			}
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nY: ", " | Y: ", debugTextContents); // X and Y position
 		}
-		if (Utils::getBool("compactAudio") && MyPlayLayer::debugTextContains("Songs")) {
+		if (Utils::getBool("compactAudio") && MyPlayLayer::xContainedInY("Songs", m_fields->debugTextContentsManager)) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nSFX: ", " | SFX: ", debugTextContents);
 		}
 		if (Utils::getBool("expandPerformance")) {

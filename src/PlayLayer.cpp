@@ -165,15 +165,16 @@ class $modify(MyPlayLayer, PlayLayer) {
 				camPosition.y
 			)
 		;
+		CCPoint camOffset = m_gameState.m_cameraOffset;
 		std::string offset = !isCompactCam ?
 			fmt::format(
 				"Offset X: {:.2f}\nOffset Y: {:.2f}",
-				m_gameState.m_cameraOffset.x,
-				m_gameState.m_cameraOffset.y
+				camOffset.x,
+				camOffset.y
 			) : fmt::format(
 				"Offset: ({:.2f}, {:.2f})",
-				m_gameState.m_cameraOffset.x,
-				m_gameState.m_cameraOffset.y
+				camOffset.x,
+				camOffset.y
 			)
 		;
 		std::string edge = fmt::format(

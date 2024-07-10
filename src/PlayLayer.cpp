@@ -127,16 +127,20 @@ class $modify(MyPlayLayer, PlayLayer) {
 	std::string buildCameraPropertiesString() {
 		if (!Utils::modEnabled() || !Utils::getBool("cameraProperties")) { return ""; }
 		// GJGameState gameState = m_gameState;
+		float camZoom = m_gameState.m_cameraZoom;
+		float camTargetZoom = m_gameState.m_targetCameraZoom;
+		float camAngle = m_gameState.m_cameraAngle;
+		float camTargetAngle = m_gameState.m_cameraAngle;
 		bool isCompactCam = Utils::getBool("compactCamera");
-		bool currentZoomNotEqualsTarget = m_gameState.m_cameraZoom != m_gameState.m_targetCameraZoom;
-		bool currentAngleNotEqualsTarget = m_gameState.m_cameraAngle != m_gameState.m_targetCameraAngle;
-		std::string zoom = fmt::format("Zoom: {:.2f}", m_gameState.m_cameraZoom);
+		bool currentZoomNotEqualsTarget = camZoom != camTargetZoom;
+		bool currentAngleNotEqualsTarget = camAngle != camTargetAngle;
+		std::string zoom = fmt::format("Zoom: {:.2f}", camZoom);
 		if (currentZoomNotEqualsTarget) {
-			zoom = zoom + fmt::format(" [{:.2f}]", m_gameState.m_targetCameraZoom);
+			zoom = zoom + fmt::format(" [{:.2f}]", camTargetZoom);
 		}
-		std::string angle = fmt::format("Angle: {:.2f}", m_gameState.m_cameraAngle);
+		std::string angle = fmt::format("Angle: {:.2f}", camAngle);
 		if (currentAngleNotEqualsTarget) {
-			angle = angle + fmt::format(" [{:.2f}]", m_gameState.m_targetCameraAngle);
+			angle = angle + fmt::format(" [{:.2f}]", camTargetAngle);
 		}
 		std::string zoomAngleSeparator =
 			(isCompactCam && !currentZoomNotEqualsTarget && !currentAngleNotEqualsTarget) ?
@@ -149,15 +153,16 @@ class $modify(MyPlayLayer, PlayLayer) {
 				angle
 			)
 		;
+		CCPoint camPosition = m_gameState.m_cameraPosition;
 		std::string position = !isCompactCam ?
 			fmt::format(
 				"Position X: {:.2f}\nPosition Y: {:.2f}",
-				m_gameState.m_cameraPosition.x,
-				m_gameState.m_cameraPosition.y
+				camPosition.x,
+				camPosition.y
 			) : fmt::format(
 				"Pos: ({:.2f}, {:.2f})",
-				m_gameState.m_cameraPosition.x,
-				m_gameState.m_cameraPosition.y
+				camPosition.x,
+				camPosition.y
 			)
 		;
 		std::string offset = !isCompactCam ?

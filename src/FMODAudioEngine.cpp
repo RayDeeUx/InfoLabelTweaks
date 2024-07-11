@@ -64,15 +64,13 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 	}
 	void preloadEffect(gd::string p0) {
 		FMODAudioEngine::sharedEngine()->preloadEffect(p0);
-		if (!Utils::modEnabled()) return; // ignore if mod disabled. should've done this sooner
-		if (!PlayLayer::get()) return; // dont record files outside of playlayer
-		if (std::find(m_fields->vanillaSFX.begin(), m_fields->vanillaSFX.end(), p0) != m_fields->vanillaSFX.end()) return; // ignore vanilla sfx, the debug menu should only record sfx from the level itself
+		if (!Utils::modEnabled() || !PlayLayer::get()) { return; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
+		if (std::find(m_fields->vanillaSFX.begin(), m_fields->vanillaSFX.end(), p0) != m_fields->vanillaSFX.end()) { return; } // ignore vanilla sfx, the debug menu should only record sfx from the level itself
 		m_fields->manager->lastPlayedEffect = parsePath(p0);
 	}
 	void loadMusic(gd::string p0, float p1, float p2, float p3, bool p4, int p5, int p6) {
 		FMODAudioEngine::sharedEngine()->loadMusic(p0, p1, p2, p3, p4, p5, p6);
-		if (!Utils::modEnabled()) return; // ignore if mod disabled. should've done this sooner
-		if (!PlayLayer::get()) return; // dont record files outside of playlayer
+		if (!Utils::modEnabled() || !PlayLayer::get()) { return; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
 		m_fields->manager->lastPlayedSong = parsePath(p0);
 	}
 };

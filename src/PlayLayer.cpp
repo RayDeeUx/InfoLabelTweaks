@@ -236,15 +236,15 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (!Utils::getBool("chromaDebugText")) {
 				debugTextNode->setColor({255, 255, 255}); // ensure that node color is white in case someone turns off chroma mode mid-session
 			} else {
-				double chromaSpeed = Utils::getDouble("chromaDebugTextSpeed");
-				CCFiniteTimeAction* tintOne = CCTintTo::create(chromaSpeed, 255, 128, 128);
-				CCFiniteTimeAction* tintTwo = CCTintTo::create(chromaSpeed, 255, 255, 128);
-				CCFiniteTimeAction* tintThree = CCTintTo::create(chromaSpeed, 128, 255, 128);
-				CCFiniteTimeAction* tintFour = CCTintTo::create(chromaSpeed, 128, 255, 255);
-				CCFiniteTimeAction* tintFive = CCTintTo::create(chromaSpeed, 128, 128, 255);
-				CCFiniteTimeAction* tintSix = CCTintTo::create(chromaSpeed, 255, 128, 128);
-				CCActionInterval* sequence = CCSequence::create(tintOne, tintTwo, tintThree, tintFour, tintFive, tintSix, nullptr);
-				CCAction* repeat = CCRepeatForever::create(sequence);
+				const auto chromaSpeed = Utils::getDouble("chromaDebugTextSpeed");
+				const auto tintOne = CCTintTo::create(chromaSpeed, 255, 128, 128);
+				const auto tintTwo = CCTintTo::create(chromaSpeed, 255, 255, 128);
+				const auto tintThree = CCTintTo::create(chromaSpeed, 128, 255, 128);
+				const auto tintFour = CCTintTo::create(chromaSpeed, 128, 255, 255);
+				const auto tintFive = CCTintTo::create(chromaSpeed, 128, 128, 255);
+				const auto tintSix = CCTintTo::create(chromaSpeed, 255, 128, 128);
+				const auto sequence = CCSequence::create(tintOne, tintTwo, tintThree, tintFour, tintFive, tintSix, nullptr);
+				const auto repeat = CCRepeatForever::create(sequence);
 				debugTextNode->runAction(repeat);
 			}
 			m_fields->appliedChromaOrDefaultColor = true;

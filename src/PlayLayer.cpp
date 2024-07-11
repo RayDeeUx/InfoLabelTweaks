@@ -154,10 +154,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			fmt::format("Offset: ({:.2f}, {:.2f})", camOffset.x, camOffset.y);
 		std::string edge = fmt::format(
 			"Edge: {} / {} / {} / {}",
-			m_gameState.m_cameraEdgeValue0,
-			m_gameState.m_cameraEdgeValue1,
-			m_gameState.m_cameraEdgeValue2,
-			m_gameState.m_cameraEdgeValue3
+			m_gameState.m_cameraEdgeValue0, m_gameState.m_cameraEdgeValue1, m_gameState.m_cameraEdgeValue2, m_gameState.m_cameraEdgeValue3
 		);
 		std::string shake = m_gameState.m_cameraShakeEnabled ?
 			fmt::format("\nShake: {:.2f}", m_gameState.m_cameraShakeFactor) : "";
@@ -166,7 +163,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			zoomAndAngle, position, offset, edge, shake
 		);
 	}
-	std::string buildGeodeLoaderString(Manager* manager) {
+	static std::string buildGeodeLoaderString(Manager* manager) {
 		if (!Utils::modEnabled() || !Utils::getBool("geodeInfo")) { return ""; }
 		if (Utils::getBool("compactGeode")) {
 			return fmt::format(
@@ -179,24 +176,24 @@ class $modify(MyPlayLayer, PlayLayer) {
 			manager->geodeVersion, manager->gameVersion, manager->platform, manager->loadedMods, manager->disabledMods, manager->installedMods, manager->problems
 		);
 	}
-	bool xContainedInY(std::string substring, std::string_view string, bool withColon = true) {
+	static bool xContainedInY(std::string substring, std::string_view string, bool withColon = true) {
 		if (!Utils::modEnabled() || string.empty()) { return false; }
 		if (withColon) return (string.find(fmt::format("{}: ", substring)) != std::string::npos);
 		return (string.find(substring) != std::string::npos);
 	}
-	bool isInfoLabel(std::string candidateString) {
+	static bool isInfoLabel(std::string candidateString) {
 		return (MyPlayLayer::xContainedInY("-- Audio --", candidateString, false) &&
 		       MyPlayLayer::xContainedInY("-- Perf --", candidateString, false) &&
 		       MyPlayLayer::xContainedInY("-- Area --", candidateString, false));
 	}
 	CCNode* findDebugTextNode() {
 		if (m_infoLabel != nullptr && MyPlayLayer::isInfoLabel(m_infoLabel->getString())) { return m_infoLabel; }
-		if (const auto infoLabelCandidate = typeinfo_cast<CCLabelBMFont*>(getChildByID("info-label"))) {
+		if (CCLabelBMFont* infoLabelCandidate = typeinfo_cast<CCLabelBMFont*>(getChildByID("info-label"))) {
 			if (MyPlayLayer::isInfoLabel(infoLabelCandidate->getString())) { return infoLabelCandidate; }
 		}
 		CCArrayExt<CCNode*> plArray = CCArrayExt<CCNode*>(getChildren());
 		for (int i = plArray.size(); i-- > 0; ) {
-			if (const auto nodeCandidate = typeinfo_cast<CCLabelBMFont*>(plArray[i])) {
+			if (CCLabelBMFont* nodeCandidate = typeinfo_cast<CCLabelBMFont*>(plArray[i])) {
 				if (MyPlayLayer::isInfoLabel(nodeCandidate->getString())) { return nodeCandidate; }
 			}
 		}
@@ -218,7 +215,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->isLevelComplete = true;
 		PlayLayer::levelComplete();
 	}
-	std::string replaceXWithYInZ(std::string forRegex, std::string replacement, std::string mainString) {
+	static std::string replaceXWithYInZ(std::string forRegex, std::string replacement, std::string mainString) {
 		return std::regex_replace(mainString, std::regex(forRegex), replacement);
 	}
 	void postUpdate(float dt) {
@@ -226,10 +223,11 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (!Utils::modEnabled() || m_fields->manager->isMinecraftify) { return; }
 
 		m_fields->debugText = MyPlayLayer::findDebugTextNode();
-		if (m_fields->debugText == nullptr) { return; }
+		if (m_fields->debugText == nullptr || !m_fields->debugText->isVisible()) { return; }
 
 		CCLabelBMFont* debugTextNode = typeinfo_cast<CCLabelBMFont*>(m_fields->debugText);
 		if (debugTextNode == nullptr || !debugTextNode->isVisible()) { return; }
+
 		if (Utils::getBool("blendingDebugText") && !m_fields->appliedBlending) {
 			debugTextNode->setBlendFunc({GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA}); // Manager::glBlendFuncs[5], Manager::glBlendFuncs[7]
 			m_fields->appliedBlending = true;
@@ -238,15 +236,15 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextNode->setColor({255, 255, 255}); // ensure that node color is white in case someone turns off chroma mode mid-session
 			m_fields->appliedChroma = false;
 		} else if (!m_fields->appliedChroma) {
-			const auto chromaSpeed = Utils::getDouble("chromaDebugTextSpeed");
-			const auto tintOne = CCTintTo::create(chromaSpeed, 255, 128, 128);
-			const auto tintTwo = CCTintTo::create(chromaSpeed, 255, 255, 128);
-			const auto tintThree = CCTintTo::create(chromaSpeed, 128, 255, 128);
-			const auto tintFour = CCTintTo::create(chromaSpeed, 128, 255, 255);
-			const auto tintFive = CCTintTo::create(chromaSpeed, 128, 128, 255);
-			const auto tintSix = CCTintTo::create(chromaSpeed, 255, 128, 128);
-			const auto sequence = CCSequence::create(tintOne, tintTwo, tintThree, tintFour, tintFive, tintSix, nullptr);
-			const auto repeat = CCRepeatForever::create(sequence);
+			double chromaSpeed = Utils::getDouble("chromaDebugTextSpeed");
+			CCFiniteTimeAction* tintOne = CCTintTo::create(chromaSpeed, 255, 128, 128);
+			CCFiniteTimeAction* tintTwo = CCTintTo::create(chromaSpeed, 255, 255, 128);
+			CCFiniteTimeAction* tintThree = CCTintTo::create(chromaSpeed, 128, 255, 128);
+			CCFiniteTimeAction* tintFour = CCTintTo::create(chromaSpeed, 128, 255, 255);
+			CCFiniteTimeAction* tintFive = CCTintTo::create(chromaSpeed, 128, 128, 255);
+			CCFiniteTimeAction* tintSix = CCTintTo::create(chromaSpeed, 255, 128, 128);
+			CCActionInterval* sequence = CCSequence::create(tintOne, tintTwo, tintThree, tintFour, tintFive, tintSix, nullptr);
+			CCAction* repeat = CCRepeatForever::create(sequence);
 			debugTextNode->runAction(repeat);
 			m_fields->appliedChroma = true;
 		}
@@ -280,8 +278,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (Utils::getBool("positionAlignBottom")) { debugTextNode->setPositionY(5); }
 			m_fields->positionSet = true;
 		}
+
 		std::string debugTextContents = debugTextNode->getString();
 		m_fields->debugTextContentsManager = debugTextNode->getString();
+
 		if (Utils::getBool("logDebugText")) {
 			log::info("--- LOGGED DEBUG TEXT [BEFORE INFOLABELTWEAKS] ---:\n{}", debugTextContents);
 		}
@@ -380,22 +380,22 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("Attempt: ", "Attempts: ", debugTextContents);
 		}
 		if (Utils::getBool("fps")) {
-			debugTextContents = fmt::format("FPS: {}\n", m_fields->manager->fps) + debugTextContents;
+			debugTextContents = fmt::format("FPS: {}\n{}", m_fields->manager->fps, debugTextContents);
 		}
 		if (Utils::getBool("gameplayHeader")) {
-			debugTextContents = "-- Gameplay --\n" + debugTextContents;
+			debugTextContents = fmt::format("-- Gameplay --\n{}", debugTextContents);
 		}
 		if (Utils::getBool("cameraProperties")) {
-			debugTextContents = debugTextContents + MyPlayLayer::buildCameraPropertiesString() + "\n";
+			debugTextContents = debugTextContents.append(fmt::format("{}\n", MyPlayLayer::buildCameraPropertiesString()));
 		}
 		if (Utils::getBool("geodeInfo")) {
-			debugTextContents = debugTextContents + MyPlayLayer::buildGeodeLoaderString(m_fields->manager) + "\n";
+			debugTextContents = debugTextContents.append(fmt::format("{}\n", MyPlayLayer::buildGeodeLoaderString(m_fields->manager)));
 		}
 		std::string customFooter = Utils::getString("customFooter");
 		if (!customFooter.empty()) {
 			std::smatch match;
 			if (std::regex_search(customFooter, match, asciiOnlyMaxTwentyRegex)) {
-				debugTextContents = debugTextContents + fmt::format("-- [{}] --", customFooter.substr(20));
+				debugTextContents = debugTextContents.append(fmt::format("-- [{}] --", customFooter.substr(20)));
 			}
 		}
 		if (Utils::getBool("logDebugText")) {

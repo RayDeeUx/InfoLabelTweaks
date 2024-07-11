@@ -22,7 +22,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::string_view debugTextContentsManager = "";
 		CCNode* debugText = nullptr;
 
-		std::string_view ending = "\n-- Area --\n";
+		std::string endsWithArea = "\n-- Area --\n";
 	};
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
 		if (!Utils::modEnabled() || !Utils::getBool("playerStatus") || (thePlayer != m_player1 && thePlayer != m_player2)) { return ""; }
@@ -331,9 +331,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(Move|Songs|SFX|Rotate|Scale|Follow): 0\n", "\n", debugTextContents);
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n-- Perf --\n--", "\n--", debugTextContents);
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(Move|Rotate|Scale|Follow|ColOp): 0 / 0", "", debugTextContents);
-			if (debugTextContents.compare(debugTextContents.size() - m_fields->ending.size(), m_fields->ending.size(), m_fields->ending) == 0) {
-				debugTextContents = MyPlayLayer::replaceXWithYInZ("\n-- Area --\n", "\n", debugTextContents);
-			}
+			if (debugTextContents.ends_with(m_fields->endsWithArea)) { debugTextContents = MyPlayLayer::replaceXWithYInZ(m_fields->endsWithArea, "\n", debugTextContents); }
 		}
 		if (Utils::getBool("playerStatus")) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ(

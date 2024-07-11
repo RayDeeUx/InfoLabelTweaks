@@ -181,7 +181,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (withColon) return (string.find(fmt::format("{}: ", substring)) != std::string::npos);
 		return (string.find(substring) != std::string::npos);
 	}
-	static bool isInfoLabel(std::string candidateString) {
+	static bool isInfoLabel(const std::string &candidateString) {
 		return (MyPlayLayer::xContainedInY("-- Audio --", candidateString, false) &&
 		       MyPlayLayer::xContainedInY("-- Perf --", candidateString, false) &&
 		       MyPlayLayer::xContainedInY("-- Area --", candidateString, false));
@@ -215,7 +215,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->isLevelComplete = true;
 		PlayLayer::levelComplete();
 	}
-	static std::string replaceXWithYInZ(std::string forRegex, std::string replacement, std::string mainString) {
+	static std::string replaceXWithYInZ(const std::string &forRegex, const std::string &replacement, const std::string &mainString) {
 		return std::regex_replace(mainString, std::regex(forRegex), replacement);
 	}
 	void postUpdate(float dt) {

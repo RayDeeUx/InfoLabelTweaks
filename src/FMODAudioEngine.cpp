@@ -36,7 +36,7 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 		std::smatch match;
 		std::smatch geodeMatch;
 		std::string result = "";
-		path = std::regex_replace(path, std::regex("com\.geode\.launcher\/"), ""); // android is cring
+		path = std::regex_replace(path, std::regex(R"(com\.geode\.launcher\/)"), ""); // android is cring, original is [ "com\.geode\.launcher\/" ]
 		path = fmt::format("/{}", path); // adding an extra slash to get it working on all possible paths. this is because combo burst does some stuff under the hood i am too scared to look at and i don't want to define more regex than necessary.
 		// log::info("path after: {}", path);
 		if (path.find("geode") != std::string::npos && (path.find("mods") != std::string::npos || path.find("config") != std::string::npos)) {

@@ -25,14 +25,20 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::string_view ending = "\n-- Area --\n";
 	};
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
-		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) { return ""; }
+		if (!Utils::modEnabled() || !Utils::getBool("playerStatus") || (thePlayer != m_player1 && thePlayer != m_player2)) { return ""; }
 		std::string status = "Unknown";
+
 		bool isPlat = m_level->isPlatformer();
 		bool compactDirs = Utils::getBool("compactDirections");
+
 		if (thePlayer->m_isShip) {
 			if (!isPlat) { status = "Ship"; }
 			else { status = "Jetpack"; }
 		}
+		else if (thePlayer->m_isBall) { status = "Ball"; }
+		else if (thePlayer->m_isBird) { status = "UFO"; }
+		else if (thePlayer->m_isRobot) { status = "Robot"; }
+		else if (thePlayer->m_isSpider) { status = "Spider"; }
 		else if (thePlayer->m_isDart || thePlayer->m_isSwing) {
 			if (thePlayer->m_isDart) { status = "Wave"; }
 			else { status = "Swing"; }
@@ -41,10 +47,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 				else { status = status + "?"; }
 			}
 		}
-		else if (thePlayer->m_isBall) { status = "Ball"; }
-		else if (thePlayer->m_isBird) { status = "UFO"; }
-		else if (thePlayer->m_isRobot) { status = "Robot"; }
-		else if (thePlayer->m_isSpider) { status = "Spider"; }
 		else { status = "Cube"; }
 
 		if (thePlayer->m_vehicleSize == .6f) { status = "Mini " + status; }
@@ -80,6 +82,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		if (thePlayer->m_isDashing) { status = "<" + status + ">"; }
 
+		if (thePlayer->m_isHidden) { status = "Hidden " + status; }
+
 		if (thePlayer != m_player2) {
 			if (m_gameState.m_isDualMode) { status = status + " [Dual]"; }
 
@@ -92,7 +96,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return fmt::format("{:.1f}x ", thePlayer->m_playerSpeed) + status;
 	}
 	std::string buildLevelTraitsString() {
-		if (!Utils::modEnabled() || !Utils::getBool("levelTraits")) { return ""; }
+		if (!Utils::modEnabled() || !Utils::getBool("levelTraits") || m_level == nullptr) { return ""; }
 		std::string level = "Unknown";
 		if (m_level->isPlatformer()) {
 			level = "Platformer";
@@ -116,20 +120,13 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		if (m_level->m_twoPlayerMode) { level = level + " {2P}"; }
 
-		/*
-		if (
-			(m_level->m_accountID.value() == 13950148 && m_level->m_levelType == GJLevelType::Saved)
-			|| m_fields->gameManager->m_playerUserID.value() == 128138354 && m_level->m_levelType != GJLevelType::Saved
-		) { level = level + " <HOMOPHOBIC>"; }
-		*/
-
 		if (m_fields->isLevelComplete) { level = level + " <Completed>"; }
 
 		return level;
 	}
 	std::string buildCameraPropertiesString() {
 		if (!Utils::modEnabled() || !Utils::getBool("cameraProperties")) { return ""; }
-		// GJGameState gameState = m_gameState; // NEVER MAKE THIS A VARIABLE IT WILL FAIL ON ANDROID
+		// NEVER STORE A VARIABLE OF TYPE GJGameState, IT WILL FAIL ON ANDROID
 		float camZoom = m_gameState.m_cameraZoom;
 		float camTargetZoom = m_gameState.m_targetCameraZoom;
 		float camAngle = m_gameState.m_cameraAngle;
@@ -137,49 +134,24 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool isCompactCam = Utils::getBool("compactCamera");
 		bool currentZoomNotEqualsTarget = camZoom != camTargetZoom;
 		bool currentAngleNotEqualsTarget = camAngle != camTargetAngle;
+
 		std::string zoom = fmt::format("Zoom: {:.2f}", camZoom);
-		if (currentZoomNotEqualsTarget) {
-			zoom = zoom + fmt::format(" [{:.2f}]", camTargetZoom);
-		}
+		if (currentZoomNotEqualsTarget) { zoom = zoom + fmt::format(" [{:.2f}]", camTargetZoom); }
 		std::string angle = fmt::format("Angle: {:.2f}", camAngle);
-		if (currentAngleNotEqualsTarget) {
-			angle = angle + fmt::format(" [{:.2f}]", camTargetAngle);
-		}
-		std::string zoomAngleSeparator =
-			(isCompactCam && !currentZoomNotEqualsTarget && !currentAngleNotEqualsTarget) ?
-				" | " : "\n";
+		if (currentAngleNotEqualsTarget) { angle = angle + fmt::format(" [{:.2f}]", camTargetAngle); }
+		std::string zoomAngleSeparator = (isCompactCam && !currentZoomNotEqualsTarget && !currentAngleNotEqualsTarget) ?
+			" | " : "\n";
 		std::string zoomAndAngle =
-			fmt::format(
-				"{}{}{}",
-				zoom,
-				zoomAngleSeparator,
-				angle
-			)
-		;
+			fmt::format("{}{}{}", zoom, zoomAngleSeparator, angle);
 		CCPoint camPosition = m_gameState.m_cameraPosition;
 		std::string position = !isCompactCam ?
-			fmt::format(
-				"Position X: {:.2f}\nPosition Y: {:.2f}",
-				camPosition.x,
-				camPosition.y
-			) : fmt::format(
-				"Pos: ({:.2f}, {:.2f})",
-				camPosition.x,
-				camPosition.y
-			)
+			fmt::format("Position X: {:.2f}\nPosition Y: {:.2f}", camPosition.x, camPosition.y) :
+			fmt::format("Pos: ({:.2f}, {:.2f})", camPosition.x, camPosition.y)
 		;
 		CCPoint camOffset = m_gameState.m_cameraOffset;
 		std::string offset = !isCompactCam ?
-			fmt::format(
-				"Offset X: {:.2f}\nOffset Y: {:.2f}",
-				camOffset.x,
-				camOffset.y
-			) : fmt::format(
-				"Offset: ({:.2f}, {:.2f})",
-				camOffset.x,
-				camOffset.y
-			)
-		;
+			fmt::format("Offset X: {:.2f}\nOffset Y: {:.2f}", camOffset.x, camOffset.y) :
+			fmt::format("Offset: ({:.2f}, {:.2f})", camOffset.x, camOffset.y);
 		std::string edge = fmt::format(
 			"Edge: {} / {} / {} / {}",
 			m_gameState.m_cameraEdgeValue0,
@@ -188,42 +160,20 @@ class $modify(MyPlayLayer, PlayLayer) {
 			m_gameState.m_cameraEdgeValue3
 		);
 		std::string shake = m_gameState.m_cameraShakeEnabled ?
-			fmt::format(
-				"\nShake: {:.2f}",
-				m_gameState.m_cameraShakeFactor
-			) : "";
+			fmt::format("\nShake: {:.2f}", m_gameState.m_cameraShakeFactor) : "";
 		return fmt::format(
 			"-- Camera --\n{}\n{}\n{}\n{}{}",
-			zoomAndAngle,
-			position,
-			offset,
-			edge,
-			shake
+			zoomAndAngle, position, offset, edge, shake
 		);
 	}
 	std::string buildGeodeLoaderString(Manager* manager) {
 		if (!Utils::modEnabled() || !Utils::getBool("geodeInfo")) { return ""; }
-		if (Utils::getBool("compactGeode")) {
-			return fmt::format(
-				"-- Geode v{} --\nGD v{} on {}\nMods: {} + {} = {} ({})",
-				manager->geodeVersion,
-				manager->gameVersion,
-				manager->platform,
-				manager->loadedMods,
-				manager->disabledMods,
-				manager->installedMods,
-				manager->problems
-			);
-		}
+		std::string geodeLoaderTemplate = Utils::getBool("compactGeode") ?
+			"-- Geode v{} --\nGD v{} on {}\nMods: {} + {} = {} ({})" :
+			"-- Geode v{} --\nGD v{} on {}\nLoaded: {}\nDisabled: {}\nInstalled: {} ({} problems)";
 		return fmt::format(
-			"-- Geode v{} --\nGD v{} on {}\nLoaded: {}\nDisabled: {}\nInstalled: {} ({} problems)",
-			manager->geodeVersion,
-			manager->gameVersion,
-			manager->platform,
-			manager->loadedMods,
-			manager->disabledMods,
-			manager->installedMods,
-			manager->problems
+			geodeLoaderTemplate,
+			manager->geodeVersion, manager->gameVersion, manager->platform, manager->loadedMods, manager->disabledMods, manager->installedMods, manager->problems
 		);
 	}
 	bool xContainedInY(std::string substring, std::string_view string, bool withColon = true) {
@@ -237,20 +187,14 @@ class $modify(MyPlayLayer, PlayLayer) {
 		       MyPlayLayer::xContainedInY("-- Area --", candidateString, false));
 	}
 	CCNode* findDebugTextNode() {
-		if (m_infoLabel != nullptr && MyPlayLayer::isInfoLabel(m_infoLabel->getString())) {
-			return m_infoLabel;
-		}
+		if (m_infoLabel != nullptr && MyPlayLayer::isInfoLabel(m_infoLabel->getString())) { return m_infoLabel; }
 		if (const auto infoLabelCandidate = typeinfo_cast<CCLabelBMFont*>(getChildByID("info-label"))) {
-			if (MyPlayLayer::isInfoLabel(infoLabelCandidate->getString())) {
-				return infoLabelCandidate;
-			}
+			if (MyPlayLayer::isInfoLabel(infoLabelCandidate->getString())) { return infoLabelCandidate; }
 		}
 		CCArrayExt<CCNode*> plArray = CCArrayExt<CCNode*>(getChildren());
 		for (int i = plArray.size(); i-- > 0; ) {
 			if (const auto nodeCandidate = typeinfo_cast<CCLabelBMFont*>(plArray[i])) {
-				if (MyPlayLayer::isInfoLabel(nodeCandidate->getString())) {
-					return nodeCandidate;
-				}
+				if (MyPlayLayer::isInfoLabel(nodeCandidate->getString())) { return nodeCandidate; }
 			}
 		}
 		return nullptr;
@@ -276,20 +220,17 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	void postUpdate(float dt) {
 		PlayLayer::postUpdate(dt);
-		if (!Utils::modEnabled()) { return; }
-		if (m_fields->manager->isMinecraftify) { return; }
+		if (!Utils::modEnabled() || m_fields->manager->isMinecraftify) { return; }
+
 		m_fields->debugText = MyPlayLayer::findDebugTextNode();
 		if (m_fields->debugText == nullptr) { return; }
-		std::string status = MyPlayLayer::buildPlayerStatusString(m_player1);
 
-		CCLabelBMFont* debugTextNode = typeinfo_cast<CCLabelBMFont*>(m_fields->manager->debugText);
+		CCLabelBMFont* debugTextNode = typeinfo_cast<CCLabelBMFont*>(m_fields->debugText);
 		if (debugTextNode == nullptr || !debugTextNode->isVisible()) { return; }
 		if (Utils::getBool("blendingDebugText") && !m_fields->appliedBlending) {
 			debugTextNode->setBlendFunc({GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA}); // Manager::glBlendFuncs[5], Manager::glBlendFuncs[7]
 			m_fields->appliedBlending = true;
-		} else {
-			m_fields->appliedBlending = false;
-		}
+		} else { m_fields->appliedBlending = false; }
 		if (!Utils::getBool("chromaDebugText")) {
 			debugTextNode->setColor({255, 255, 255}); // ensure that node color is white in case someone turns off chroma mode mid-session
 			m_fields->appliedChroma = false;
@@ -301,15 +242,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			const auto tintFour = CCTintTo::create(chromaSpeed, 128, 255, 255);
 			const auto tintFive = CCTintTo::create(chromaSpeed, 128, 128, 255);
 			const auto tintSix = CCTintTo::create(chromaSpeed, 255, 128, 128);
-			const auto sequence = CCSequence::create(
-				tintOne,
-				tintTwo,
-				tintThree,
-				tintFour,
-				tintFive,
-				tintSix,
-				nullptr
-			);
+			const auto sequence = CCSequence::create(tintOne, tintTwo, tintThree, tintFour, tintFive, tintSix, nullptr);
 			const auto repeat = CCRepeatForever::create(sequence);
 			debugTextNode->runAction(repeat);
 			m_fields->appliedChroma = true;
@@ -335,20 +268,13 @@ class $modify(MyPlayLayer, PlayLayer) {
 			m_fields->scaleSet = true;
 		}
 		if (!m_fields->positionSet && (Utils::getBool("positionAlignRight") || Utils::getBool("positionAlignBottom"))) {
-			debugTextNode->setAnchorPoint(
-				{
-					Utils::getBool("positionAlignRight") ? 1.f : 0.f, // anchorPointX
-					Utils::getBool("positionAlignBottom") ? 1.f : 0.f // anchorPointY
-				}
-			);
-			if (Utils::getBool("positionAlignRight")) {
-				debugTextNode->setPositionX(
-					CCDirector::get()->getWinSize().width * .95f
-				);
-			}
-			if (Utils::getBool("positionAlignBottom")) {
-				debugTextNode->setPositionY(5);
-			}
+			debugTextNode->ignoreAnchorPointForPosition(false);
+			debugTextNode->setAnchorPoint({
+				Utils::getBool("positionAlignRight") ? 1.f : 0.f, // positionAlignRight: anchorPointX
+				Utils::getBool("positionAlignBottom") ? 1.f : 0.f // positionAlignBottom: anchorPointY
+			});
+			if (Utils::getBool("positionAlignRight")) { debugTextNode->setPositionX(CCDirector::get()->getWinSize().width * .95f); }
+			if (Utils::getBool("positionAlignBottom")) { debugTextNode->setPositionY(5); }
 			m_fields->positionSet = true;
 		}
 		std::string debugTextContents = debugTextNode->getString();
@@ -359,22 +285,15 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (Utils::getBool("currentChannel")) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ(
 				"\n-- Audio --",
-				fmt::format(
-					"\nChannel: {}\n\r-- Audio --",
-					m_gameState.m_currentChannel
-				),
+				fmt::format("\nChannel: {}\n\r-- Audio --", m_gameState.m_currentChannel),
 				debugTextContents
 			);
 		}
 		#ifndef __APPLE__
-		if (Utils::getBool("lastPlayedSong")) {
+		if (Utils::getBool("lastPlayedAudio")) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ(
 				"\n(\r)?-- Audio --\nSongs: ",
-				fmt::format(
-					"\n-- Audio --\nLast Song: {}\nLast SFX: {}\nSongs: ",
-					m_fields->manager->lastPlayedSong,
-					m_fields->manager->lastPlayedEffect
-				),
+				fmt::format("\n-- Audio --\nLast Song: {}\nLast SFX: {}\nSongs: ", m_fields->manager->lastPlayedSong, m_fields->manager->lastPlayedEffect),
 				debugTextContents
 			);
 		}
@@ -384,11 +303,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (std::regex_search(debugTextContents, match, tapsCountRegex)) {
 				debugTextContents = MyPlayLayer::replaceXWithYInZ(
 					"Taps: \\d+\nTimeWarp: ",
-					fmt::format(
-						"Taps: {} [{}]\nTimeWarp: ",
-						match[1].str(),
-						m_jumps
-					),
+					fmt::format("Taps: {} [{}]\nTimeWarp: ", match[1].str(), m_jumps),
 					debugTextContents
 				); // jump count from playlayer members: m_jump
 			}
@@ -398,13 +313,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (std::regex_search(debugTextContents, match, timeLabelRegex)) {
 				debugTextContents = MyPlayLayer::replaceXWithYInZ(
 					"Time: \\d+(\\.\\d+)?\nAttempt: ",
-					fmt::format(
-						"Time: {} [{}]\nAttempt: ",
-						match[1].str(),
-						fmt::format("{:.2f}", m_gameState.m_levelTime) // attempt time from playlayer gamestate member: m_gameState.m_levelTime
-					),
+					fmt::format("Time: {} [{}]\nAttempt: ", match[1].str(), fmt::format("{:.2f}", m_gameState.m_levelTime)),
 					debugTextContents
-				);
+				); // attempt time from playlayer gamestate member: m_gameState.m_levelTime
 			}
 		}
 		if (Utils::getBool("accuratePosition")) {
@@ -417,24 +328,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(Move|Songs|SFX|Rotate|Scale|Follow): 0\n", "\n", debugTextContents);
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n-- Perf --\n--", "\n--", debugTextContents);
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(Move|Rotate|Scale|Follow|ColOp): 0 / 0", "", debugTextContents);
-			/*
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nTimeWarp: 1\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nGravity: 1\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nGradients: 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nParticles: 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nChannel: 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nMove: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nSongs: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nSFX: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nRotate: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nScale: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nFollow: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nMove: 0 / 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nRotate: 0 / 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nScale: 0 / 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nFollow: 0 / 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nColOp: 0 / 0", "", debugTextContents);
-			*/
 			if (debugTextContents.compare(debugTextContents.size() - m_fields->ending.size(), m_fields->ending.size(), m_fields->ending) == 0) {
 				debugTextContents = MyPlayLayer::replaceXWithYInZ("\n-- Area --\n", "\n", debugTextContents);
 			}
@@ -456,10 +349,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (Utils::getBool("levelTraits")) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ(
 				"\n-- Audio --",
-				fmt::format(
-					"\nLevel: {}\n-- Audio --",
-					MyPlayLayer::buildLevelTraitsString()
-				),
+				fmt::format("\nLevel: {}\n-- Audio --", MyPlayLayer::buildLevelTraitsString()),
 				debugTextContents
 			);
 		}
@@ -492,15 +382,13 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = fmt::format("FPS: {}\n", m_fields->manager->fps) + debugTextContents;
 		}
 		if (Utils::getBool("gameplayHeader")) {
-			debugTextContents = std::string("-- Gameplay --\n") + debugTextContents;
+			debugTextContents = "-- Gameplay --\n" + debugTextContents;
 		}
 		if (Utils::getBool("cameraProperties")) {
-			debugTextContents = debugTextContents +
-			MyPlayLayer::buildCameraPropertiesString() + "\n";
+			debugTextContents = debugTextContents + MyPlayLayer::buildCameraPropertiesString() + "\n";
 		}
 		if (Utils::getBool("geodeInfo")) {
-			debugTextContents = debugTextContents +
-			MyPlayLayer::buildGeodeLoaderString(m_fields->manager) + "\n";
+			debugTextContents = debugTextContents + MyPlayLayer::buildGeodeLoaderString(m_fields->manager) + "\n";
 		}
 		std::string customFooter = Utils::getString("customFooter");
 		if (!customFooter.empty()) {

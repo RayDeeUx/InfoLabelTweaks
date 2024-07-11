@@ -181,7 +181,7 @@
 		"type": "bool",
 		"default": false
 	},
-	"lastPlayedSong": {
+	"lastPlayedAudio": {
 		"name": "Show Most Recent Song/Effect",
 		"description": "Includes the filename of the most recently loaded song in the Audio section.\n\n<cy>This setting is currently unavailable on macOS.</c>",
 		"type": "bool",

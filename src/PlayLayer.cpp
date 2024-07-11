@@ -13,7 +13,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	struct Fields {
 		Manager* manager = Manager::getSharedInstance();
 		bool appliedBlending = false;
-		bool appliedChroma = false;
+		bool appliedChromaOrDefaultColor = false;
 		bool isLevelComplete = false;
 		bool positionSet = false;
 		bool textAlignmentSet = false;
@@ -202,7 +202,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	void onQuit() {
 		m_fields->isLevelComplete = false;
 		m_fields->appliedBlending = false;
-		m_fields->appliedChroma = false;
+		m_fields->appliedChromaOrDefaultColor = false;
 		m_fields->positionSet = false;
 		m_fields->textAlignmentSet = false;
 		m_fields->scaleSet = false;
@@ -232,21 +232,22 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextNode->setBlendFunc({GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA}); // Manager::glBlendFuncs[5], Manager::glBlendFuncs[7]
 			m_fields->appliedBlending = true;
 		} else { m_fields->appliedBlending = false; }
-		if (!Utils::getBool("chromaDebugText")) {
-			debugTextNode->setColor({255, 255, 255}); // ensure that node color is white in case someone turns off chroma mode mid-session
-			m_fields->appliedChroma = false;
-		} else if (!m_fields->appliedChroma) {
-			double chromaSpeed = Utils::getDouble("chromaDebugTextSpeed");
-			CCFiniteTimeAction* tintOne = CCTintTo::create(chromaSpeed, 255, 128, 128);
-			CCFiniteTimeAction* tintTwo = CCTintTo::create(chromaSpeed, 255, 255, 128);
-			CCFiniteTimeAction* tintThree = CCTintTo::create(chromaSpeed, 128, 255, 128);
-			CCFiniteTimeAction* tintFour = CCTintTo::create(chromaSpeed, 128, 255, 255);
-			CCFiniteTimeAction* tintFive = CCTintTo::create(chromaSpeed, 128, 128, 255);
-			CCFiniteTimeAction* tintSix = CCTintTo::create(chromaSpeed, 255, 128, 128);
-			CCActionInterval* sequence = CCSequence::create(tintOne, tintTwo, tintThree, tintFour, tintFive, tintSix, nullptr);
-			CCAction* repeat = CCRepeatForever::create(sequence);
-			debugTextNode->runAction(repeat);
-			m_fields->appliedChroma = true;
+		if (!m_fields->appliedChromaOrDefaultColor) {
+			if (!Utils::getBool("chromaDebugText")) {
+				debugTextNode->setColor({255, 255, 255}); // ensure that node color is white in case someone turns off chroma mode mid-session
+			} else {
+				double chromaSpeed = Utils::getDouble("chromaDebugTextSpeed");
+				CCFiniteTimeAction* tintOne = CCTintTo::create(chromaSpeed, 255, 128, 128);
+				CCFiniteTimeAction* tintTwo = CCTintTo::create(chromaSpeed, 255, 255, 128);
+				CCFiniteTimeAction* tintThree = CCTintTo::create(chromaSpeed, 128, 255, 128);
+				CCFiniteTimeAction* tintFour = CCTintTo::create(chromaSpeed, 128, 255, 255);
+				CCFiniteTimeAction* tintFive = CCTintTo::create(chromaSpeed, 128, 128, 255);
+				CCFiniteTimeAction* tintSix = CCTintTo::create(chromaSpeed, 255, 128, 128);
+				CCActionInterval* sequence = CCSequence::create(tintOne, tintTwo, tintThree, tintFour, tintFive, tintSix, nullptr);
+				CCAction* repeat = CCRepeatForever::create(sequence);
+				debugTextNode->runAction(repeat);
+			}
+			m_fields->appliedChromaOrDefaultColor = true;
 		}
 		if (!m_fields->opacitySet) {
 			if (Utils::getBool("maxAlphaDebugText")) {

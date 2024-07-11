@@ -168,11 +168,14 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	std::string buildGeodeLoaderString(Manager* manager) {
 		if (!Utils::modEnabled() || !Utils::getBool("geodeInfo")) { return ""; }
-		std::string geodeLoaderTemplate = Utils::getBool("compactGeode") ?
-			"-- Geode v{} --\nGD v{} on {}\nMods: {} + {} = {} ({})" :
-			"-- Geode v{} --\nGD v{} on {}\nLoaded: {}\nDisabled: {}\nInstalled: {} ({} problems)";
+		if (Utils::getBool("compactGeode")) {
+			return fmt::format(
+				"-- Geode v{} --\nGD v{} on {}\nMods: {} + {} = {} ({})",
+				manager->geodeVersion, manager->gameVersion, manager->platform, manager->loadedMods, manager->disabledMods, manager->installedMods, manager->problems
+			);
+		}
 		return fmt::format(
-			geodeLoaderTemplate,
+			"-- Geode v{} --\nGD v{} on {}\nLoaded: {}\nDisabled: {}\nInstalled: {} ({} problems)",
 			manager->geodeVersion, manager->gameVersion, manager->platform, manager->loadedMods, manager->disabledMods, manager->installedMods, manager->problems
 		);
 	}

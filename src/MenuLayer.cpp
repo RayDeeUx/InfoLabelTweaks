@@ -29,6 +29,7 @@ class $modify(MyMenuLayer, MenuLayer) {
 			}
 		});
 
+		m_fields->manager->platform = GEODE_PLATFORM_NAME;
 		m_fields->manager->installedMods = mods.size();
 		m_fields->manager->loadedMods = loadedMods;
 		m_fields->manager->disabledMods = disabledMods;

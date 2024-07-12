@@ -104,6 +104,12 @@
 			"type": "bool",
 			"default": false
 		},
+		"positionAlignBottom": {
+			"name": "Align Bottom (Position)",
+			"description": "Aligns the position of the info label towards the bottom of the screen.",
+			"type": "bool",
+			"default": false
+		},
 		"tapsToClicks": {
 			"name": "\"Taps\" -> \"Clicks\"/\"Actions\"",
 			"description": "\"Taps\" becomes \"Clicks\" (\"Actions\" in platformer levels).",

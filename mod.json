@@ -10,14 +10,14 @@
 	"version": "v1.0.0",
 	"developer": "RayDeeUx",
 	"description": "Adds additional information to GD's Info Label. (Formerly part of ErysEdits.)",
-	"enabled": {
-		"name": "Enabled",
-		"description": "Toggles the mod.",
-		"type": "bool",
-		"default": true
-	},
 	"settings": {
 		"blendingDebugText": {
+			"enabled": {
+				"name": "Enabled",
+				"description": "Toggles the mod.",
+				"type": "bool",
+				"default": true
+			},
 			"name": "Readable Mode (Stronger Blending)",
 			"description": "Make the info label easier to read across a far larger variety of scenarios.\n\n<cy>(Make sure to check out the other options below this one!)</c>",
 			"type": "bool",

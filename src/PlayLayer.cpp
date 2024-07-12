@@ -275,7 +275,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 				Utils::getBool("positionAlignRight") ? 1.f : 0.f, // positionAlignRight: anchorPointX
 				Utils::getBool("positionAlignBottom") ? 1.f : 0.f // positionAlignBottom: anchorPointY
 			});
-			if (Utils::getBool("positionAlignRight")) { debugTextNode->setPositionX(CCDirector::get()->getWinSize().width * .95f); }
+			if (Utils::getBool("positionAlignRight")) { debugTextNode->setPositionX(CCDirector::get()->getWinSize().width * .975f); }
 			if (Utils::getBool("positionAlignBottom")) { debugTextNode->setPositionY(5); }
 			m_fields->positionSet = true;
 		}
@@ -327,11 +327,31 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nY: (\\d)+\n", fmt::format("\nY: {:.4f}\n", m_player1->m_position.y), debugTextContents);
 		}
 		if (Utils::getBool("conditionalValues")) {
+			/*
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(TimeWarp|Gravity): 1\n", "\n", debugTextContents);
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(Gradients|Particles|Channel): 0", "", debugTextContents);
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(Move|Songs|SFX|Rotate|Scale|Follow): 0\n", "\n", debugTextContents);
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n-- Perf --\n--", "\n--", debugTextContents);
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(Move|Rotate|Scale|Follow|ColOp): 0 / 0", "", debugTextContents);
+			*/
+			// cannot condense into one regex per situation it seems
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nTimeWarp: 1\n"), "\n");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nGravity: 1\n"), "\n");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nGradients: 0"), "");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nParticles: 0"), "");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nChannel: 0"), "");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nMove: 0\n"), "\n");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nSongs: 0\n"), "\n");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nSFX: 0\n"), "\n");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nRotate: 0\n"), "\n");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nScale: 0\n"), "\n");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nFollow: 0\n"), "\n");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\n-- Perf --\n--"), "\n--");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nMove: 0 / 0"), "");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nRotate: 0 / 0"), "");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nScale: 0 / 0"), "");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nFollow: 0 / 0"), "");
+			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nColOp: 0 / 0"), "");
 			if (debugTextContents.ends_with(m_fields->endsWithArea)) { debugTextContents = MyPlayLayer::replaceXWithYInZ(m_fields->endsWithArea, "\n", debugTextContents); }
 		}
 		if (Utils::getBool("playerStatus")) {

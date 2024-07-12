@@ -142,24 +142,24 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::string zoomAngleSeparator = (isCompactCam && !currentZoomNotEqualsTarget && !currentAngleNotEqualsTarget) ?
 			" | " : "\n";
 		std::string zoomAndAngle =
-			fmt::format("{}{}{}", zoom, zoomAngleSeparator, angle);
+			fmt::format("\n{}{}{}", zoom, zoomAngleSeparator, angle);
 		CCPoint camPosition = m_gameState.m_cameraPosition;
 		std::string position = !isCompactCam ?
-			fmt::format("Position X: {:.2f}\nPosition Y: {:.2f}", camPosition.x, camPosition.y) :
-			fmt::format("Pos: ({:.2f}, {:.2f})", camPosition.x, camPosition.y)
+			fmt::format("\nPosition X: {:.2f}\nPosition Y: {:.2f}", camPosition.x, camPosition.y) :
+			fmt::format("\nPos: ({:.2f}, {:.2f})", camPosition.x, camPosition.y)
 		;
 		CCPoint camOffset = m_gameState.m_cameraOffset;
 		std::string offset = !isCompactCam ?
-			fmt::format("Offset X: {:.2f}\nOffset Y: {:.2f}", camOffset.x, camOffset.y) :
-			fmt::format("Offset: ({:.2f}, {:.2f})", camOffset.x, camOffset.y);
-		std::string edge = fmt::format(
-			"Edge: {} / {} / {} / {}",
+			fmt::format("\nOffset X: {:.2f}\nOffset Y: {:.2f}", camOffset.x, camOffset.y) :
+			fmt::format("\nOffset: ({:.2f}, {:.2f})", camOffset.x, camOffset.y);
+		std::string edge = !(m_gameState.m_cameraEdgeValue0 == 0 && m_gameState.m_cameraEdgeValue1 == 0 && m_gameState.m_cameraEdgeValue2 == 0 && m_gameState.m_cameraEdgeValue3 == 0) ? fmt::format(
+			"\nEdge: {} / {} / {} / {}",
 			m_gameState.m_cameraEdgeValue0, m_gameState.m_cameraEdgeValue1, m_gameState.m_cameraEdgeValue2, m_gameState.m_cameraEdgeValue3
-		);
-		std::string shake = m_gameState.m_cameraShakeEnabled ?
+		) : "";
+		std::string shake = (m_gameState.m_cameraShakeEnabled || !isCompactCam) ?
 			fmt::format("\nShake: {:.2f}", m_gameState.m_cameraShakeFactor) : "";
 		return fmt::format(
-			"-- Camera --\n{}\n{}\n{}\n{}{}",
+			"-- Camera --{}{}{}{}{}",
 			zoomAndAngle, position, offset, edge, shake
 		);
 	}
@@ -414,10 +414,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		}
 		std::string customFooter = Utils::getString("customFooter");
 		if (!customFooter.empty()) {
-			std::smatch match;
-			if (std::regex_search(customFooter, match, asciiOnlyMaxTwentyRegex)) {
-				debugTextContents = debugTextContents.append(fmt::format("-- [{}] --", customFooter.substr(20)));
-			}
+			debugTextContents = debugTextContents.append(fmt::format("-- [{}] --", customFooter.substr(20)));
 		}
 		if (Utils::getBool("logDebugText")) {
 			log::info("--- LOGGED DEBUG TEXT [AFTER INFOLABELTWEAKS] ---:\n{}", debugTextContents);

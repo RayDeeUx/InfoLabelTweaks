@@ -7,7 +7,6 @@ using namespace geode::prelude;
 
 static std::regex tapsCountRegex(R"(Taps: (\d+)\n)", std::regex::optimize | std::regex::icase);
 static std::regex timeLabelRegex(R"(Time: (\d+(\.\d+)?))", std::regex::optimize | std::regex::icase);
-static std::regex asciiOnlyMaxTwentyRegex(R"([\x00-\x7F]{0,20})", std::regex::optimize | std::regex::icase);
 
 class $modify(MyPlayLayer, PlayLayer) {
 	struct Fields {
@@ -127,36 +126,28 @@ class $modify(MyPlayLayer, PlayLayer) {
 	std::string buildCameraPropertiesString() {
 		if (!Utils::modEnabled() || !Utils::getBool("cameraProperties")) { return ""; }
 		// NEVER STORE A VARIABLE OF TYPE GJGameState, IT WILL FAIL ON ANDROID
-		float camZoom = m_gameState.m_cameraZoom;
-		float camTargetZoom = m_gameState.m_targetCameraZoom;
-		float camAngle = m_gameState.m_cameraAngle;
-		float camTargetAngle = m_gameState.m_cameraAngle;
 		bool isCompactCam = Utils::getBool("compactCamera");
-		bool currentZoomNotEqualsTarget = camZoom != camTargetZoom;
-		bool currentAngleNotEqualsTarget = camAngle != camTargetAngle;
+		bool conditionalValues = Utils::getBool("conditionalValues");
 
-		std::string zoom = fmt::format("Zoom: {:.2f}", camZoom);
-		if (currentZoomNotEqualsTarget) { zoom = zoom + fmt::format(" [{:.2f}]", camTargetZoom); }
-		std::string angle = fmt::format("Angle: {:.2f}", camAngle);
-		if (currentAngleNotEqualsTarget) { angle = angle + fmt::format(" [{:.2f}]", camTargetAngle); }
-		std::string zoomAngleSeparator = (isCompactCam && !currentZoomNotEqualsTarget && !currentAngleNotEqualsTarget) ?
+		std::string zoom = fmt::format("Zoom: {:.2f}", m_gameState.m_cameraZoom);
+		std::string angle = fmt::format("Angle: {:.2f}", m_gameState.m_cameraAngle);
+		std::string zoomAngleSeparator = (isCompactCam) ?
 			" | " : "\n";
 		std::string zoomAndAngle =
 			fmt::format("\n{}{}{}", zoom, zoomAngleSeparator, angle);
 		CCPoint camPosition = m_gameState.m_cameraPosition;
 		std::string position = !isCompactCam ?
 			fmt::format("\nPosition X: {:.2f}\nPosition Y: {:.2f}", camPosition.x, camPosition.y) :
-			fmt::format("\nPos: ({:.2f}, {:.2f})", camPosition.x, camPosition.y)
-		;
+			fmt::format("\nPos: ({:.2f}, {:.2f})", camPosition.x, camPosition.y);
 		CCPoint camOffset = m_gameState.m_cameraOffset;
 		std::string offset = !isCompactCam ?
 			fmt::format("\nOffset X: {:.2f}\nOffset Y: {:.2f}", camOffset.x, camOffset.y) :
-			fmt::format("\nOffset: ({:.2f}, {:.2f})", camOffset.x, camOffset.y);
-		std::string edge = !(m_gameState.m_cameraEdgeValue0 == 0 && m_gameState.m_cameraEdgeValue1 == 0 && m_gameState.m_cameraEdgeValue2 == 0 && m_gameState.m_cameraEdgeValue3 == 0) ? fmt::format(
+			(camOffset.x == 0.f && camOffset.y == 0.f) && conditionalValues ? "" : fmt::format("\nOffset: ({:.2f}, {:.2f})", camOffset.x, camOffset.y);
+		std::string edge = !(conditionalValues && (m_gameState.m_cameraEdgeValue0 == 0 && m_gameState.m_cameraEdgeValue1 == 0 && m_gameState.m_cameraEdgeValue2 == 0 && m_gameState.m_cameraEdgeValue3 == 0)) ? fmt::format(
 			"\nEdge: {} / {} / {} / {}",
 			m_gameState.m_cameraEdgeValue0, m_gameState.m_cameraEdgeValue1, m_gameState.m_cameraEdgeValue2, m_gameState.m_cameraEdgeValue3
 		) : "";
-		std::string shake = (m_gameState.m_cameraShakeEnabled || !isCompactCam) ?
+		std::string shake = (m_gameState.m_cameraShakeEnabled || !conditionalValues) ?
 			fmt::format("\nShake: {:.2f}", m_gameState.m_cameraShakeFactor) : "";
 		return fmt::format(
 			"-- Camera --{}{}{}{}{}",
@@ -273,7 +264,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextNode->ignoreAnchorPointForPosition(false);
 			debugTextNode->setAnchorPoint({
 				Utils::getBool("positionAlignRight") ? 1.f : 0.f, // positionAlignRight: anchorPointX
-				Utils::getBool("positionAlignBottom") ? 1.f : 0.f // positionAlignBottom: anchorPointY
+				Utils::getBool("positionAlignBottom") ? 0.f : 1.f // positionAlignBottom: anchorPointY
 			});
 			if (Utils::getBool("positionAlignRight")) { debugTextNode->setPositionX(CCDirector::get()->getWinSize().width * .975f); }
 			if (Utils::getBool("positionAlignBottom")) { debugTextNode->setPositionY(5); }
@@ -335,23 +326,23 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(Move|Rotate|Scale|Follow|ColOp): 0 / 0", "", debugTextContents);
 			*/
 			// cannot condense into one regex per situation it seems
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nTimeWarp: 1\n"), "\n");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nGravity: 1\n"), "\n");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nGradients: 0"), "");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nParticles: 0"), "");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nChannel: 0"), "");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nMove: 0\n"), "\n");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nSongs: 0\n"), "\n");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nSFX: 0\n"), "\n");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nRotate: 0\n"), "\n");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nScale: 0\n"), "\n");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nFollow: 0\n"), "\n");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\n-- Perf --\n--"), "\n--");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nMove: 0 / 0"), "");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nRotate: 0 / 0"), "");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nScale: 0 / 0"), "");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nFollow: 0 / 0"), "");
-			debugTextContents = std::regex_replace(debugTextContents, std::regex("\nColOp: 0 / 0"), "");
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nTimeWarp: 1\n", "\n", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nGravity: 1\n", "\n", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nGradients: 0", "", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nParticles: 0", "", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nChannel: 0", "", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nMove: 0\n", "\n", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nSongs: 0\n", "\n", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nSFX: 0\n", "\n", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nRotate: 0\n", "\n", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nScale: 0\n", "\n", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nFollow: 0\n", "\n", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n-- Perf --\n--", "\n--", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nMove: 0 / 0", "", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nRotate: 0 / 0", "", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nScale: 0 / 0", "", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nFollow: 0 / 0", "", debugTextContents);
+			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nColOp: 0 / 0", "", debugTextContents);
 			if (debugTextContents.ends_with(m_fields->endsWithArea)) { debugTextContents = MyPlayLayer::replaceXWithYInZ(m_fields->endsWithArea, "\n", debugTextContents); }
 		}
 		if (Utils::getBool("playerStatus")) {
@@ -414,7 +405,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		}
 		std::string customFooter = Utils::getString("customFooter");
 		if (!customFooter.empty()) {
-			debugTextContents = debugTextContents.append(fmt::format("-- [{}] --", customFooter.substr(20)));
+			debugTextContents = debugTextContents.append(fmt::format("-- [{}] --", (customFooter.length() > 20) ? customFooter.substr(20) : customFooter));
 		}
 		if (Utils::getBool("logDebugText")) {
 			log::info("--- LOGGED DEBUG TEXT [AFTER INFOLABELTWEAKS] ---:\n{}", debugTextContents);

@@ -7,6 +7,7 @@ using namespace geode::prelude;
 
 static std::regex tapsCountRegex(R"(Taps: (\d+)\n)", std::regex::optimize | std::regex::icase);
 static std::regex timeLabelRegex(R"(Time: (\d+(\.\d+)?))", std::regex::optimize | std::regex::icase);
+static std::regex asciiOnlyMaxTwentyRegex(R"([\x00-\x7F]{0,20})", std::regex::optimize | std::regex::icase);
 
 class $modify(MyPlayLayer, PlayLayer) {
 	struct Fields {
@@ -18,13 +19,12 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool textAlignmentSet = false;
 		bool scaleSet = false;
 		bool opacitySet = false;
-		std::string_view debugTextContentsManager = "";
 		CCNode* debugText = nullptr;
 
 		std::string endsWithArea = "\n-- Area --\n";
 	};
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
-		if (!Utils::modEnabled() || !Utils::getBool("playerStatus") || (thePlayer != m_player1 && thePlayer != m_player2)) { return ""; }
+		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) { return ""; }
 		std::string status = "Unknown";
 
 		bool isPlat = m_level->isPlatformer();
@@ -42,84 +42,88 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (thePlayer->m_isDart) { status = "Wave"; }
 			else { status = "Swing"; }
 			if (isPlat) {
-				if (m_fields->manager->gameVersion != "2.210") { status = status + "*"; }
-				else { status = status + "?"; }
+				if (m_fields->manager->gameVersion != "2.210") { status = status.append("*"); }
+				else { status = status.append("?"); }
 			}
 		}
 		else { status = "Cube"; }
 
-		if (thePlayer->m_vehicleSize == .6f) { status = "Mini " + status; }
-		else if (thePlayer->m_vehicleSize != 1.f) { status = status + " of strange size"; }
+		if (thePlayer->m_vehicleSize == .6f) { status = fmt::format("Mini {}", status); }
+		else if (thePlayer->m_vehicleSize != 1.f) { status = status.append(" of strange size"); }
 
 		if (thePlayer->m_isPlatformer) {
 			if (thePlayer->m_isUpsideDown) {
 				if (thePlayer->m_isSideways) {
-					if (compactDirs) { status = "->] " + status; }
-					else { status = "Rightwards " + status; }
+					if (compactDirs) { status = fmt::format("->] {}", status); }
+					else { status = fmt::format("Rightwards {}", status); }
 				}
-				else { status = "Flipped " + status; }
+				else { status = fmt::format("Flipped {}", status); }
 			} else if (thePlayer->m_isSideways) {
-				if (compactDirs) { status = "[<- " + status; }
-				else { status = "Leftwards " + status; }
+				if (compactDirs) { status = fmt::format("[<- {}", status); }
+				else { status = fmt::format("Leftwards {}", status); }
 			}
 		} else {
-			if (thePlayer->m_isUpsideDown) { status = "Flipped " + status; }
+			if (thePlayer->m_isUpsideDown) { status = fmt::format("Flipped {}", status); }
 			if (thePlayer->m_isSideways) {
 				if (thePlayer->m_isGoingLeft) {
-					if (compactDirs) { status = "\\/ " + status; }
-					else { status = "Downwards " + status; }
+					if (compactDirs) { status = fmt::format("\\/ {}" , status); }
+					else { status = fmt::format("Downwards {}", status); }
 				}
 				else {
-					if (compactDirs) { status = "/\\ " + status; }
-					else { status = "Upwards " + status; }
+					if (compactDirs) { status = fmt::format("/\\ {}" , status); }
+					else { status = fmt::format("Upwards {}", status); }
 				}
 			} else if (thePlayer->m_isGoingLeft) {
-				if (compactDirs) { status = "<- " + status; }
-				else { status = "Reversed " + status; }
+				if (compactDirs) { status = fmt::format("<- {}", status); }
+				else { status = fmt::format("Reversed {}", status); }
 			}
 		}
 
-		if (thePlayer->m_isDashing) { status = "<" + status + ">"; }
+		if (thePlayer->m_isDashing) { status = fmt::format("<{}>", status); }
 
-		if (thePlayer->m_isHidden) { status = "Hidden " + status; }
+		if (thePlayer->m_isHidden) { status = fmt::format("Hidden {}", status); }
 
 		if (thePlayer != m_player2) {
-			if (m_gameState.m_isDualMode) { status = status + " [Dual]"; }
+			if (m_gameState.m_isDualMode) { status = status.append(" [Dual]"); }
 
-			if (m_isPracticeMode) { status = status + " {Practice}"; }
-			else if (m_isTestMode) { status = status + " {Testmode}"; }
+			if (m_isPracticeMode) { status = status.append(" {Practice}"); }
+			else if (m_isTestMode) { status = status.append(" {Testmode}"); }
 		}
 
-		if (thePlayer->m_isDead) { status = status + " (Dead)"; }
+		if (thePlayer->m_isDead) { status = status.append(" (Dead)"); }
 
-		return fmt::format("{:.1f}x ", thePlayer->m_playerSpeed) + status;
+		log::info("Status: {:.1f}x {}", thePlayer->m_playerSpeed, status);
+
+		return fmt::format("{:.1f}x {}", thePlayer->m_playerSpeed, status);
 	}
 	std::string buildLevelTraitsString() {
-		if (!Utils::modEnabled() || !Utils::getBool("levelTraits") || m_level == nullptr) { return ""; }
+		if (!Utils::modEnabled() || !Utils::getBool("levelTraits")) { return ""; }
 		std::string level = "Unknown";
 		if (m_level->isPlatformer()) {
 			level = "Platformer";
 		} else {
 			level = "Classic";
-			if (m_level->m_levelLength == 0.f) { level = level + " [Tiny]"; }
-			else if (m_level->m_levelLength == 1.f) { level = level + " [Short]"; }
-			else if (m_level->m_levelLength == 2.f) { level = level + " [Medium]"; }
-			else if (m_level->m_levelLength == 3.f) { level = level + " [Long]"; }
-			else { level = level + " [XL]"; }
+			if (m_level->m_levelLength == 0.f) { level = level.append(" [Tiny]"); }
+			else if (m_level->m_levelLength == 1.f) { level = level.append(" [Short]"); }
+			else if (m_level->m_levelLength == 2.f) { level = level.append(" [Medium]"); }
+			else if (m_level->m_levelLength == 3.f) { level = level.append(" [Long]"); }
+			else { level = level.append(" [XL]"); }
 		}
 
 		if (m_level->m_levelType == GJLevelType::Editor) {
-			if (m_level->m_isVerifiedRaw) { level = level + " (Verified)";}
-			else { level = level + " (Unverified)"; }
+			if (m_level->m_isVerifiedRaw) { level = level.append(" (Verified)"); }
+			else { level = level.append(" (Unverified)"); }
 		} else {
-			if (m_level->m_levelType == GJLevelType::Saved) { level = level + " (Online)"; }
-			else if (m_level->m_levelType == GJLevelType::Local) { level = level + " (Official)"; }
-			else { level = level + " (Unknown)"; }
+			if (m_level->m_levelType == GJLevelType::Saved) { level = level.append(" (Online)"); }
+			else if (m_level->m_levelType == GJLevelType::Local) { level = level.append(" (Official)"); }
+			else { level = level.append(" (Unknown)"); }
 		}
 
-		if (m_level->m_twoPlayerMode) { level = level + " {2P}"; }
+		if (m_level->m_twoPlayerMode) { level = level.append(" {2P}"); }
 
-		if (m_fields->isLevelComplete) { level = level + " <Completed>"; }
+		if (m_fields->isLevelComplete) { level = level.append(" <Completed>"); }
+
+		log::info("Status: {}", level);
 
 		return level;
 	}
@@ -129,29 +133,39 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool isCompactCam = Utils::getBool("compactCamera");
 		bool conditionalValues = Utils::getBool("conditionalValues");
 
-		std::string zoom = fmt::format("Zoom: {:.2f}", m_gameState.m_cameraZoom);
-		std::string angle = fmt::format("Angle: {:.2f}", m_gameState.m_cameraAngle);
-		std::string zoomAngleSeparator = (isCompactCam) ?
-			" | " : "\n";
-		std::string zoomAndAngle =
-			fmt::format("\n{}{}{}", zoom, zoomAngleSeparator, angle);
 		CCPoint camPosition = m_gameState.m_cameraPosition;
+		CCPoint camOffset = m_gameState.m_cameraOffset;
+
+		float camZoom = m_gameState.m_cameraZoom;
+		float camAngle = m_gameState.m_cameraAngle;
+
+		bool allEdgeValuesZero = (m_gameState.m_cameraEdgeValue0 == 0 && m_gameState.m_cameraEdgeValue1 == 0 && m_gameState.m_cameraEdgeValue2 == 0 && m_gameState.m_cameraEdgeValue3 == 0);
+		bool noOffsetAndConditionalLabels = (camOffset == ccp(0, 0) && conditionalValues);
+		bool standardZoomAndConditional = (camZoom == 1.f && conditionalValues);
+
 		std::string position = !isCompactCam ?
 			fmt::format("\nPosition X: {:.2f}\nPosition Y: {:.2f}", camPosition.x, camPosition.y) :
 			fmt::format("\nPos: ({:.2f}, {:.2f})", camPosition.x, camPosition.y);
-		CCPoint camOffset = m_gameState.m_cameraOffset;
+
 		std::string offset = !isCompactCam ?
-			fmt::format("\nOffset X: {:.2f}\nOffset Y: {:.2f}", camOffset.x, camOffset.y) :
-			(camOffset.x == 0.f && camOffset.y == 0.f) && conditionalValues ? "" : fmt::format("\nOffset: ({:.2f}, {:.2f})", camOffset.x, camOffset.y);
-		std::string edge = !(conditionalValues && (m_gameState.m_cameraEdgeValue0 == 0 && m_gameState.m_cameraEdgeValue1 == 0 && m_gameState.m_cameraEdgeValue2 == 0 && m_gameState.m_cameraEdgeValue3 == 0)) ? fmt::format(
+			noOffsetAndConditionalLabels ? "" : fmt::format("\nOffset X: {:.2f}\nOffset Y: {:.2f}", camOffset.x, camOffset.y) :
+			noOffsetAndConditionalLabels ? "" : fmt::format("\nOffset: ({:.2f}, {:.2f})", camOffset.x, camOffset.y);
+
+		std::string zoom = (standardZoomAndConditional) ? "" : fmt::format("Zoom: {:.2f}", camZoom);
+		std::string angle = (camAngle == 0.f && conditionalValues) ? "" : fmt::format("{}Angle: {:.2f}", (standardZoomAndConditional) ? "" : ((isCompactCam) ? " | " : "\n"), camAngle);
+		std::string zoomAndAngle = fmt::format("\n{}{}", zoom, angle);
+
+		std::string edge = !(conditionalValues && allEdgeValuesZero) ? fmt::format(
 			"\nEdge: {} / {} / {} / {}",
 			m_gameState.m_cameraEdgeValue0, m_gameState.m_cameraEdgeValue1, m_gameState.m_cameraEdgeValue2, m_gameState.m_cameraEdgeValue3
 		) : "";
+
 		std::string shake = (m_gameState.m_cameraShakeEnabled || !conditionalValues) ?
 			fmt::format("\nShake: {:.2f}", m_gameState.m_cameraShakeFactor) : "";
+
 		return fmt::format(
 			"-- Camera --{}{}{}{}{}",
-			zoomAndAngle, position, offset, edge, shake
+			position, offset, zoomAndAngle, edge, shake
 		);
 	}
 	static std::string buildGeodeLoaderString(Manager* manager) {
@@ -199,14 +213,13 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->scaleSet = false;
 		m_fields->opacitySet = false;
 		m_fields->debugText = nullptr;
-		m_fields->debugTextContentsManager = "";
 		PlayLayer::onQuit();
 	}
 	void levelComplete() {
 		m_fields->isLevelComplete = true;
 		PlayLayer::levelComplete();
 	}
-	static std::string replaceXWithYInZ(const std::string &forRegex, const std::string &replacement, const std::string &mainString) {
+	static std::string replaceXWithYInZ(std::string forRegex, std::string replacement, std::string mainString) {
 		return std::regex_replace(mainString, std::regex(forRegex), replacement);
 	}
 	void postUpdate(float dt) {
@@ -260,19 +273,18 @@ class $modify(MyPlayLayer, PlayLayer) {
 			}
 			m_fields->scaleSet = true;
 		}
-		if (!m_fields->positionSet && (Utils::getBool("positionAlignRight") || Utils::getBool("positionAlignBottom"))) {
+		if ((Utils::getBool("positionAlignRight") || Utils::getBool("positionAlignBottom"))) {
 			debugTextNode->ignoreAnchorPointForPosition(false);
 			debugTextNode->setAnchorPoint({
 				Utils::getBool("positionAlignRight") ? 1.f : 0.f, // positionAlignRight: anchorPointX
 				Utils::getBool("positionAlignBottom") ? 0.f : 1.f // positionAlignBottom: anchorPointY
 			});
-			if (Utils::getBool("positionAlignRight")) { debugTextNode->setPositionX(CCDirector::get()->getWinSize().width * .975f); }
-			if (Utils::getBool("positionAlignBottom")) { debugTextNode->setPositionY(5); }
+			if (Utils::getBool("positionAlignRight")) { debugTextNode->setPositionX(CCDirector::get()->getWinSize().width - 5); }
+			if (Utils::getBool("positionAlignBottom")) { debugTextNode->setPositionY(10); }
 			m_fields->positionSet = true;
 		}
 
 		std::string debugTextContents = debugTextNode->getString();
-		m_fields->debugTextContentsManager = debugTextNode->getString();
 
 		if (Utils::getBool("logDebugText")) {
 			log::info("--- LOGGED DEBUG TEXT [BEFORE INFOLABELTWEAKS] ---:\n{}", debugTextContents);
@@ -303,7 +315,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 				); // jump count from playlayer members: m_jump
 			}
 		}
-		if (Utils::getBool("attemptTime")) {
+		if (Utils::getBool("totalTime") && m_level->isPlatformer()) {
 			std::smatch match;
 			if (std::regex_search(debugTextContents, match, timeLabelRegex)) {
 				debugTextContents = MyPlayLayer::replaceXWithYInZ(
@@ -346,6 +358,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (debugTextContents.ends_with(m_fields->endsWithArea)) { debugTextContents = MyPlayLayer::replaceXWithYInZ(m_fields->endsWithArea, "\n", debugTextContents); }
 		}
 		if (Utils::getBool("playerStatus")) {
+		log::info("begin player status");
 			debugTextContents = MyPlayLayer::replaceXWithYInZ(
 				"\n-- Audio --",
 				(m_gameState.m_isDualMode) ? fmt::format(
@@ -358,25 +371,28 @@ class $modify(MyPlayLayer, PlayLayer) {
 				),
 				debugTextContents
 			);
+		log::info("end player status");
 		}
 		if (Utils::getBool("levelTraits")) {
+		log::info("begin level traits");
 			debugTextContents = MyPlayLayer::replaceXWithYInZ(
 				"\n-- Audio --",
 				fmt::format("\nLevel: {}\n-- Audio --", MyPlayLayer::buildLevelTraitsString()),
 				debugTextContents
 			);
+		log::info("end level traits");
 		}
 		if (Utils::getBool("compactGameplay")) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nTaps: ", " | Taps: ", debugTextContents); // Attempt and Taps
-			if (MyPlayLayer::xContainedInY("TimeWarp", m_fields->debugTextContentsManager)) {
+			if (MyPlayLayer::xContainedInY("TimeWarp", debugTextContents)) {
 				debugTextContents = MyPlayLayer::replaceXWithYInZ("\nGravity: ", " | Gravity: ", debugTextContents); // TimeWarp and Gravity
 			}
-			if (MyPlayLayer::xContainedInY("Gradients", m_fields->debugTextContentsManager)) {
+			if (MyPlayLayer::xContainedInY("Gradients", debugTextContents)) {
 				debugTextContents = MyPlayLayer::replaceXWithYInZ("\nParticles: ", " | Particles: ", debugTextContents); // Gradients and Particles
 			}
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nY: ", " | Y: ", debugTextContents); // X and Y position
 		}
-		if (Utils::getBool("compactAudio") && MyPlayLayer::xContainedInY("Songs", m_fields->debugTextContentsManager)) {
+		if (Utils::getBool("compactAudio") && MyPlayLayer::xContainedInY("Songs", debugTextContents)) {
 			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nSFX: ", " | SFX: ", debugTextContents);
 		}
 		if (Utils::getBool("expandPerformance")) {
@@ -405,11 +421,16 @@ class $modify(MyPlayLayer, PlayLayer) {
 		}
 		std::string customFooter = Utils::getString("customFooter");
 		if (!customFooter.empty()) {
-			debugTextContents = debugTextContents.append(fmt::format("-- [{}] --", (customFooter.length() > 20) ? customFooter.substr(20) : customFooter));
+			std::smatch match;
+			if (std::regex_search(customFooter, match, asciiOnlyMaxTwentyRegex)) {
+				debugTextContents = debugTextContents.append(fmt::format("-- [{}] --", (customFooter.length() > 20) ? customFooter.substr(20) : customFooter));
+			}
 		}
 		if (Utils::getBool("logDebugText")) {
 			log::info("--- LOGGED DEBUG TEXT [AFTER INFOLABELTWEAKS] ---:\n{}", debugTextContents);
 		}
+		// last hurrah
+		debugTextContents = replaceXWithYInZ("\n\n", "\n", debugTextContents);
 		debugTextNode->setString(debugTextContents.c_str());
 	}
 };

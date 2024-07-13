@@ -158,9 +158,9 @@
 			"type": "bool",
 			"default": true
 		},
-		"attemptTime": {
-			"name": "Include Attempt Time",
-			"description": "Includes the time spent on your current attempt (stylized like <cy>[this]</c>) next to your \"Time\" label.",
+		"totalTime": {
+			"name": "Include Total Time",
+			"description": "<cp>Platformer levels only.</c>\n\nIncludes the total time spent during your current session in a level (stylized like <cy>[this]</c>) next to your \"Time\" label (which shows the duration of your current attempt).",
 			"type": "bool",
 			"default": true
 		},

@@ -92,8 +92,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		if (thePlayer->m_isDead) { status = status.append(" (Dead)"); }
 
-		log::info("Status: {:.1f}x {}", thePlayer->m_playerSpeed, status);
-
 		return fmt::format("{:.1f}x {}", thePlayer->m_playerSpeed, status);
 	}
 	std::string buildLevelTraitsString() {
@@ -122,8 +120,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (m_level->m_twoPlayerMode) { level = level.append(" {2P}"); }
 
 		if (m_fields->isLevelComplete) { level = level.append(" <Completed>"); }
-
-		log::info("Status: {}", level);
 
 		return level;
 	}
@@ -187,19 +183,19 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return (string.find(substring) != std::string::npos);
 	}
 	static bool isInfoLabel(const std::string &candidateString) {
-		return (MyPlayLayer::xContainedInY("-- Audio --", candidateString, false) &&
-		       MyPlayLayer::xContainedInY("-- Perf --", candidateString, false) &&
-		       MyPlayLayer::xContainedInY("-- Area --", candidateString, false));
+		return (xContainedInY("-- Audio --", candidateString, false) &&
+		       xContainedInY("-- Perf --", candidateString, false) &&
+		       xContainedInY("-- Area --", candidateString, false));
 	}
 	CCNode* findDebugTextNode() {
-		if (m_infoLabel != nullptr && MyPlayLayer::isInfoLabel(m_infoLabel->getString())) { return m_infoLabel; }
+		if (m_infoLabel != nullptr && isInfoLabel(m_infoLabel->getString())) { return m_infoLabel; }
 		if (CCLabelBMFont* infoLabelCandidate = typeinfo_cast<CCLabelBMFont*>(getChildByID("info-label"))) {
-			if (MyPlayLayer::isInfoLabel(infoLabelCandidate->getString())) { return infoLabelCandidate; }
+			if (isInfoLabel(infoLabelCandidate->getString())) { return infoLabelCandidate; }
 		}
 		CCArrayExt<CCNode*> plArray = CCArrayExt<CCNode*>(getChildren());
 		for (int i = plArray.size(); i-- > 0; ) {
 			if (CCLabelBMFont* nodeCandidate = typeinfo_cast<CCLabelBMFont*>(plArray[i])) {
-				if (MyPlayLayer::isInfoLabel(nodeCandidate->getString())) { return nodeCandidate; }
+				if (isInfoLabel(nodeCandidate->getString())) { return nodeCandidate; }
 			}
 		}
 		return nullptr;
@@ -226,7 +222,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		PlayLayer::postUpdate(dt);
 		if (!Utils::modEnabled() || m_fields->manager->isMinecraftify) { return; }
 
-		m_fields->debugText = MyPlayLayer::findDebugTextNode();
+		m_fields->debugText = findDebugTextNode();
 		if (m_fields->debugText == nullptr || !m_fields->debugText->isVisible()) { return; }
 
 		CCLabelBMFont* debugTextNode = typeinfo_cast<CCLabelBMFont*>(m_fields->debugText);
@@ -290,15 +286,15 @@ class $modify(MyPlayLayer, PlayLayer) {
 			log::info("--- LOGGED DEBUG TEXT [BEFORE INFOLABELTWEAKS] ---:\n{}", debugTextContents);
 		}
 		if (Utils::getBool("currentChannel")) {
-			debugTextContents = MyPlayLayer::replaceXWithYInZ(
+			debugTextContents = replaceXWithYInZ(
 				"\n-- Audio --",
-				fmt::format("\nChannel: {}\n\r-- Audio --", m_gameState.m_currentChannel),
+				fmt::format("\nChannel: {}\n-- Audio --", m_gameState.m_currentChannel),
 				debugTextContents
 			);
 		}
 		#ifndef __APPLE__
 		if (Utils::getBool("lastPlayedAudio")) {
-			debugTextContents = MyPlayLayer::replaceXWithYInZ(
+			debugTextContents = replaceXWithYInZ(
 				"\n(\r)?-- Audio --\nSongs: ",
 				fmt::format("\n-- Audio --\nLast Song: {}\nLast SFX: {}\nSongs: ", m_fields->manager->lastPlayedSong, m_fields->manager->lastPlayedEffect),
 				debugTextContents
@@ -308,7 +304,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (Utils::getBool("jumps")) {
 			std::smatch match;
 			if (std::regex_search(debugTextContents, match, tapsCountRegex)) {
-				debugTextContents = MyPlayLayer::replaceXWithYInZ(
+				debugTextContents = replaceXWithYInZ(
 					"Taps: \\d+\nTimeWarp: ",
 					fmt::format("Taps: {} [{}]\nTimeWarp: ", match[1].str(), m_jumps),
 					debugTextContents
@@ -318,7 +314,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (Utils::getBool("totalTime") && m_level->isPlatformer()) {
 			std::smatch match;
 			if (std::regex_search(debugTextContents, match, timeLabelRegex)) {
-				debugTextContents = MyPlayLayer::replaceXWithYInZ(
+				debugTextContents = replaceXWithYInZ(
 					"Time: \\d+(\\.\\d+)?\nAttempt: ",
 					fmt::format("Time: {} [{}]\nAttempt: ", match[1].str(), fmt::format("{:.2f}", m_gameState.m_levelTime)),
 					debugTextContents
@@ -326,48 +322,48 @@ class $modify(MyPlayLayer, PlayLayer) {
 			}
 		}
 		if (Utils::getBool("accuratePosition")) {
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nX: (\\d)+\n", fmt::format("\nX: {:.4f}\n", m_player1->m_position.x), debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nY: (\\d)+\n", fmt::format("\nY: {:.4f}\n", m_player1->m_position.y), debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nX: (\\d)+\n", fmt::format("\nX: {:.4f}\n", m_player1->m_position.x), debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nY: (\\d)+\n", fmt::format("\nY: {:.4f}\n", m_player1->m_position.y), debugTextContents);
 		}
 		if (Utils::getBool("conditionalValues")) {
 			/*
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(TimeWarp|Gravity): 1\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(Gradients|Particles|Channel): 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(Move|Songs|SFX|Rotate|Scale|Follow): 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n-- Perf --\n--", "\n--", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n(Move|Rotate|Scale|Follow|ColOp): 0 / 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\n(TimeWarp|Gravity): 1\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\n(Gradients|Particles|Channel): 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\n(Move|Songs|SFX|Rotate|Scale|Follow): 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\n-- Perf --\n--", "\n--", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\n(Move|Rotate|Scale|Follow|ColOp): 0 / 0", "", debugTextContents);
 			*/
 			// cannot condense into one regex per situation it seems
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nTimeWarp: 1\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nGravity: 1\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nGradients: 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nParticles: 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nChannel: 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nMove: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nSongs: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nSFX: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nRotate: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nScale: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nFollow: 0\n", "\n", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\n-- Perf --\n--", "\n--", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nMove: 0 / 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nRotate: 0 / 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nScale: 0 / 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nFollow: 0 / 0", "", debugTextContents);
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nColOp: 0 / 0", "", debugTextContents);
-			if (debugTextContents.ends_with(m_fields->endsWithArea)) { debugTextContents = MyPlayLayer::replaceXWithYInZ(m_fields->endsWithArea, "\n", debugTextContents); }
+			debugTextContents = replaceXWithYInZ("\nTimeWarp: 1\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nGravity: 1\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nGradients: 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nParticles: 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nChannel: 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nMove: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nSongs: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nSFX: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nRotate: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nScale: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nFollow: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\n-- Perf --\n--", "\n--", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nMove: 0 / 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nRotate: 0 / 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nScale: 0 / 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nFollow: 0 / 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nColOp: 0 / 0", "", debugTextContents);
+			if (debugTextContents.ends_with(m_fields->endsWithArea)) { debugTextContents = replaceXWithYInZ(m_fields->endsWithArea, "\n", debugTextContents); }
 		}
 		if (Utils::getBool("playerStatus")) {
 		log::info("begin player status");
-			debugTextContents = MyPlayLayer::replaceXWithYInZ(
+			debugTextContents = replaceXWithYInZ(
 				"\n-- Audio --",
 				(m_gameState.m_isDualMode) ? fmt::format(
 					"\nP1 Status: {}\nP2 Status: {}\n-- Audio --",
-					MyPlayLayer::buildPlayerStatusString(m_player1),
-					MyPlayLayer::buildPlayerStatusString(m_player2)
+					buildPlayerStatusString(m_player1),
+					buildPlayerStatusString(m_player2)
 				) : fmt::format(
 					"\nStatus: {}\n-- Audio --",
-					MyPlayLayer::buildPlayerStatusString(m_player1)
+					buildPlayerStatusString(m_player1)
 				),
 				debugTextContents
 			);
@@ -375,37 +371,37 @@ class $modify(MyPlayLayer, PlayLayer) {
 		}
 		if (Utils::getBool("levelTraits")) {
 		log::info("begin level traits");
-			debugTextContents = MyPlayLayer::replaceXWithYInZ(
+			debugTextContents = replaceXWithYInZ(
 				"\n-- Audio --",
-				fmt::format("\nLevel: {}\n-- Audio --", MyPlayLayer::buildLevelTraitsString()),
+				fmt::format("\nLevel: {}\n-- Audio --", buildLevelTraitsString()),
 				debugTextContents
 			);
 		log::info("end level traits");
 		}
 		if (Utils::getBool("compactGameplay")) {
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nTaps: ", " | Taps: ", debugTextContents); // Attempt and Taps
-			if (MyPlayLayer::xContainedInY("TimeWarp", debugTextContents)) {
-				debugTextContents = MyPlayLayer::replaceXWithYInZ("\nGravity: ", " | Gravity: ", debugTextContents); // TimeWarp and Gravity
+			debugTextContents = replaceXWithYInZ("\nTaps: ", " | Taps: ", debugTextContents); // Attempt and Taps
+			if (xContainedInY("TimeWarp", debugTextContents)) {
+				debugTextContents = replaceXWithYInZ("\nGravity: ", " | Gravity: ", debugTextContents); // TimeWarp and Gravity
 			}
-			if (MyPlayLayer::xContainedInY("Gradients", debugTextContents)) {
-				debugTextContents = MyPlayLayer::replaceXWithYInZ("\nParticles: ", " | Particles: ", debugTextContents); // Gradients and Particles
+			if (xContainedInY("Gradients", debugTextContents)) {
+				debugTextContents = replaceXWithYInZ("\nParticles: ", " | Particles: ", debugTextContents); // Gradients and Particles
 			}
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nY: ", " | Y: ", debugTextContents); // X and Y position
+			debugTextContents = replaceXWithYInZ("\nY: ", " | Y: ", debugTextContents); // X and Y position
 		}
-		if (Utils::getBool("compactAudio") && MyPlayLayer::xContainedInY("Songs", debugTextContents)) {
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("\nSFX: ", " | SFX: ", debugTextContents);
+		if (Utils::getBool("compactAudio") && xContainedInY("Songs", debugTextContents)) {
+			debugTextContents = replaceXWithYInZ("\nSFX: ", " | SFX: ", debugTextContents);
 		}
 		if (Utils::getBool("expandPerformance")) {
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("-- Perf --", "-- Performance --", debugTextContents);
+			debugTextContents = replaceXWithYInZ("-- Perf --", "-- Performance --", debugTextContents);
 		}
 		if (Utils::getBool("tapsToClicks")) {
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("Taps: ", (m_level->isPlatformer()) ? "Actions: " : "Clicks: ", debugTextContents);
+			debugTextContents = replaceXWithYInZ("Taps: ", (m_level->isPlatformer()) ? "Actions: " : "Clicks: ", debugTextContents);
 		}
 		if (Utils::getBool("fixLevelIDLabel")) {
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("LevelID: ", "Level ID: ", debugTextContents);
+			debugTextContents = replaceXWithYInZ("LevelID: ", "Level ID: ", debugTextContents);
 		}
 		if (Utils::getBool("pluralAttempts")) {
-			debugTextContents = MyPlayLayer::replaceXWithYInZ("Attempt: ", "Attempts: ", debugTextContents);
+			debugTextContents = replaceXWithYInZ("Attempt: ", "Attempts: ", debugTextContents);
 		}
 		if (Utils::getBool("fps")) {
 			debugTextContents = fmt::format("FPS: {}\n{}", m_fields->manager->fps, debugTextContents);
@@ -414,10 +410,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = fmt::format("-- Gameplay --\n{}", debugTextContents);
 		}
 		if (Utils::getBool("cameraProperties")) {
-			debugTextContents = debugTextContents.append(fmt::format("{}\n", MyPlayLayer::buildCameraPropertiesString()));
+			debugTextContents = debugTextContents.append(fmt::format("{}\n", buildCameraPropertiesString()));
 		}
 		if (Utils::getBool("geodeInfo")) {
-			debugTextContents = debugTextContents.append(fmt::format("{}\n", MyPlayLayer::buildGeodeLoaderString(m_fields->manager)));
+			debugTextContents = debugTextContents.append(fmt::format("{}\n", buildGeodeLoaderString(m_fields->manager)));
 		}
 		std::string customFooter = Utils::getString("customFooter");
 		if (!customFooter.empty()) {

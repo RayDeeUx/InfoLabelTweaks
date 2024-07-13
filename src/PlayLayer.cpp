@@ -354,7 +354,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (debugTextContents.ends_with(m_fields->endsWithArea)) { debugTextContents = replaceXWithYInZ(m_fields->endsWithArea, "\n", debugTextContents); }
 		}
 		if (Utils::getBool("playerStatus")) {
-		log::info("begin player status");
 			debugTextContents = replaceXWithYInZ(
 				"\n-- Audio --",
 				(m_gameState.m_isDualMode) ? fmt::format(
@@ -367,23 +366,20 @@ class $modify(MyPlayLayer, PlayLayer) {
 				),
 				debugTextContents
 			);
-		log::info("end player status");
 		}
 		if (Utils::getBool("levelTraits")) {
-		log::info("begin level traits");
 			debugTextContents = replaceXWithYInZ(
 				"\n-- Audio --",
 				fmt::format("\nLevel: {}\n-- Audio --", buildLevelTraitsString()),
 				debugTextContents
 			);
-		log::info("end level traits");
 		}
 		if (Utils::getBool("compactGameplay")) {
 			debugTextContents = replaceXWithYInZ("\nTaps: ", " | Taps: ", debugTextContents); // Attempt and Taps
 			if (xContainedInY("TimeWarp", debugTextContents)) {
 				debugTextContents = replaceXWithYInZ("\nGravity: ", " | Gravity: ", debugTextContents); // TimeWarp and Gravity
 			}
-			if (xContainedInY("Gradients", debugTextContents)) {
+			if (xContainedInY("Gradients", debugTextContents) || xContainedInY("Active", debugTextContents)) {
 				debugTextContents = replaceXWithYInZ("\nParticles: ", " | Particles: ", debugTextContents); // Gradients and Particles
 			}
 			debugTextContents = replaceXWithYInZ("\nY: ", " | Y: ", debugTextContents); // X and Y position

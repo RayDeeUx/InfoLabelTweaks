@@ -1,12 +1,16 @@
 #include <Geode/modify/PlayLayer.hpp>
-#include <regex>
 #include "Utils.hpp"
 #include "Manager.hpp"
+#include <regex>
+#include <vector>
+#include <algorithm>
+#include <random>
 
 using namespace geode::prelude;
 
 static std::regex tapsCountRegex(R"(Taps: (\d+)\n)", std::regex::optimize | std::regex::icase);
 static std::regex timeLabelRegex(R"(Time: (\d+(\.\d+)?))", std::regex::optimize | std::regex::icase);
+static std::regex levelIDRegex(R"(Level ?ID: (\d+))", std::regex::optimize | std::regex::icase);
 static std::regex asciiOnlyMaxTwentyRegex(R"([\x00-\x7F]{0,20})", std::regex::optimize | std::regex::icase);
 
 class $modify(MyPlayLayer, PlayLayer) {
@@ -15,13 +19,19 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool appliedBlending = false;
 		bool appliedChromaOrDefaultColor = false;
 		bool isLevelComplete = false;
-		bool positionSet = false;
 		bool textAlignmentSet = false;
 		bool scaleSet = false;
 		bool opacitySet = false;
+		std::string hIDeSet = "";
 		CCNode* debugText = nullptr;
 
 		std::string endsWithArea = "\n-- Area --\n";
+		std::vector<std::string> hIDe = {
+			"None", "strict_overflow_ops",
+			"ZeroDivisionError", "Infinity",
+			"NaN", "NumberFormatException",
+			"undefined", "hIDden"
+		};
 	};
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
 		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) { return ""; }
@@ -173,8 +183,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 			);
 		}
 		return fmt::format(
-			"-- Geode v{} --\nGD v{} on {}\nLoaded: {}\nDisabled: {}\nInstalled: {} ({} problems)",
-			manager->geodeVersion, manager->gameVersion, manager->platform, manager->loadedMods, manager->disabledMods, manager->installedMods, manager->problems
+			"-- Geode v{} --\nGD v{} on {}\nLoaded: {}\nDisabled: {}\nInstalled: {} ({} problem{})",
+			manager->geodeVersion, manager->gameVersion, manager->platform, manager->loadedMods, manager->disabledMods, manager->installedMods, manager->problems, (manager->problems == 1) ? "" : "s"
 		);
 	}
 	static bool xContainedInY(std::string substring, std::string_view string, bool withColon = true) {
@@ -200,14 +210,19 @@ class $modify(MyPlayLayer, PlayLayer) {
 		}
 		return nullptr;
 	}
+	std::string hIDeString() {
+		std::mt19937 randomSeed(std::random_device{}());
+		std::shuffle(m_fields->hIDe.begin(), m_fields->hIDe.end(), randomSeed);
+		return m_fields->hIDe.front();
+	}
 	void onQuit() {
 		m_fields->isLevelComplete = false;
 		m_fields->appliedBlending = false;
 		m_fields->appliedChromaOrDefaultColor = false;
-		m_fields->positionSet = false;
 		m_fields->textAlignmentSet = false;
 		m_fields->scaleSet = false;
 		m_fields->opacitySet = false;
+		m_fields->hIDeSet = "";
 		m_fields->debugText = nullptr;
 		PlayLayer::onQuit();
 	}
@@ -215,7 +230,11 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->isLevelComplete = true;
 		PlayLayer::levelComplete();
 	}
-	static std::string replaceXWithYInZ(std::string forRegex, std::string replacement, std::string mainString) {
+	void setupHasCompleted() {
+		m_fields->hIDeSet = hIDeString();
+		PlayLayer::setupHasCompleted();
+	}
+	static std::string replaceXWithYInZ(const std::string& forRegex, const std::string& replacement, const std::string& mainString) {
 		return std::regex_replace(mainString, std::regex(forRegex), replacement);
 	}
 	void postUpdate(float dt) {
@@ -277,7 +296,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 			});
 			if (Utils::getBool("positionAlignRight")) { debugTextNode->setPositionX(CCDirector::get()->getWinSize().width - 5); }
 			if (Utils::getBool("positionAlignBottom")) { debugTextNode->setPositionY(10); }
-			m_fields->positionSet = true;
 		}
 
 		std::string debugTextContents = debugTextNode->getString();
@@ -301,6 +319,16 @@ class $modify(MyPlayLayer, PlayLayer) {
 			);
 		}
 		#endif
+		if (Utils::getBool("hIDe") && m_level->m_levelType == GJLevelType::Editor) {
+			std::smatch match;
+			if (std::regex_search(debugTextContents, match, levelIDRegex)) {
+				debugTextContents = replaceXWithYInZ(
+					"LevelID: \\d+\nTime: ",
+					fmt::format("LevelID: [{}]\nTime: ", m_fields->hIDeSet),
+					debugTextContents
+				);
+			}
+		}
 		if (Utils::getBool("jumps")) {
 			std::smatch match;
 			if (std::regex_search(debugTextContents, match, tapsCountRegex)) {
@@ -351,6 +379,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = replaceXWithYInZ("\nScale: 0 / 0", "", debugTextContents);
 			debugTextContents = replaceXWithYInZ("\nFollow: 0 / 0", "", debugTextContents);
 			debugTextContents = replaceXWithYInZ("\nColOp: 0 / 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\n-- Audio --\n--", "\n--", debugTextContents);
 			if (debugTextContents.ends_with(m_fields->endsWithArea)) { debugTextContents = replaceXWithYInZ(m_fields->endsWithArea, "\n", debugTextContents); }
 		}
 		if (Utils::getBool("playerStatus")) {

@@ -128,6 +128,12 @@
 			"type": "bool",
 			"default": true
 		},
+		"hIDe": {
+			"name": "\"hIDe\"",
+			"description": "<cp>Inspired by</c> <cj>Alphalaneous</c>.\n\n<cp>Similar</c> <cj>to their hIDe mod prior to GD 2.206</c>, this option \"hides\" the Level ID in the info label if you are playing a custom editor level.\n\n<cy>This option does NOT require the hIDe mod to be installed, and pressing/holding the Shift key has no effect.</c>",
+			"type": "bool",
+			"default": true
+		},
 		"expandPerformance": {
 			"name": "Expand \"Perf\" Header",
 			"description": "\"-- Perf --\" becomes \"-- Performance --\".",

@@ -353,6 +353,27 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = replaceXWithYInZ("\nX: (\\d)+\n", fmt::format("\nX: {:.4f}\n", m_player1->m_position.x), debugTextContents);
 			debugTextContents = replaceXWithYInZ("\nY: (\\d)+\n", fmt::format("\nY: {:.4f}\n", m_player1->m_position.y), debugTextContents);
 		}
+		if (Utils::getBool("playerStatus")) {
+			debugTextContents = replaceXWithYInZ(
+				"\n-- Audio --",
+				(m_gameState.m_isDualMode) ? fmt::format(
+					"\nP1 Status: {}\nP2 Status: {}\n-- Audio --",
+					buildPlayerStatusString(m_player1),
+					buildPlayerStatusString(m_player2)
+				) : fmt::format(
+					"\nStatus: {}\n-- Audio --",
+					buildPlayerStatusString(m_player1)
+				),
+				debugTextContents
+			);
+		}
+		if (Utils::getBool("levelTraits")) {
+			debugTextContents = replaceXWithYInZ(
+				"\n-- Audio --",
+				fmt::format("\nLevel: {}\n-- Audio --", buildLevelTraitsString()),
+				debugTextContents
+			);
+		}
 		if (Utils::getBool("conditionalValues")) {
 			/*
 			debugTextContents = replaceXWithYInZ("\n(TimeWarp|Gravity): 1\n", "\n", debugTextContents);
@@ -381,27 +402,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = replaceXWithYInZ("\nColOp: 0 / 0", "", debugTextContents);
 			debugTextContents = replaceXWithYInZ("\n-- Audio --\n--", "\n--", debugTextContents);
 			if (debugTextContents.ends_with(m_fields->endsWithArea)) { debugTextContents = replaceXWithYInZ(m_fields->endsWithArea, "\n", debugTextContents); }
-		}
-		if (Utils::getBool("playerStatus")) {
-			debugTextContents = replaceXWithYInZ(
-				"\n-- Audio --",
-				(m_gameState.m_isDualMode) ? fmt::format(
-					"\nP1 Status: {}\nP2 Status: {}\n-- Audio --",
-					buildPlayerStatusString(m_player1),
-					buildPlayerStatusString(m_player2)
-				) : fmt::format(
-					"\nStatus: {}\n-- Audio --",
-					buildPlayerStatusString(m_player1)
-				),
-				debugTextContents
-			);
-		}
-		if (Utils::getBool("levelTraits")) {
-			debugTextContents = replaceXWithYInZ(
-				"\n-- Audio --",
-				fmt::format("\nLevel: {}\n-- Audio --", buildLevelTraitsString()),
-				debugTextContents
-			);
 		}
 		if (Utils::getBool("compactGameplay")) {
 			debugTextContents = replaceXWithYInZ("\nTaps: ", " | Taps: ", debugTextContents); // Attempt and Taps

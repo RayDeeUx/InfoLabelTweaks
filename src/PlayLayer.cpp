@@ -262,7 +262,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 				CCFiniteTimeAction* tintThree = CCTintTo::create(chromaSpeed, 128, 255, 128);
 				CCFiniteTimeAction* tintFour = CCTintTo::create(chromaSpeed, 128, 255, 255);
 				CCFiniteTimeAction* tintFive = CCTintTo::create(chromaSpeed, 128, 128, 255);
-				CCFiniteTimeAction* tintSix = CCTintTo::create(chromaSpeed, 255, 128, 128);
+				CCFiniteTimeAction* tintSix = CCTintTo::create(chromaSpeed, 255, 128, 255);
 				CCActionInterval* sequence = CCSequence::create(tintOne, tintTwo, tintThree, tintFour, tintFive, tintSix, nullptr);
 				CCAction* repeat = CCRepeatForever::create(sequence);
 				debugTextNode->runAction(repeat);

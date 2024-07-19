@@ -48,7 +48,7 @@
 		},
 		"chromaDebugText": {
 			"name": "Chroma Mode",
-			"description": "<cl>Original code by ItzKiba.</c>\n\nSets the color of the info label to that of a rainbow, as a last ditch effort to make the info label readable under every imaginable circumstance without flooding your Geode logs.",
+			"description": "<cl>Original code by ItzKiba.</c>\n\nSets the color of the info label to cycle through the colors of a rainbow, as a last ditch effort to make the info label readable under every imaginable circumstance without flooding your Geode logs.",
 			"type": "bool",
 			"default": false
 		},
@@ -162,13 +162,13 @@
 			"name": "Include Jumps",
 			"description": "Includes your current session's jump count (stylized like <cy>[this]</c>) next to your \"Taps\"/\"Clicks\"/\"Actions\" label.",
 			"type": "bool",
-			"default": true
+			"default": false
 		},
 		"totalAttempts": {
 			"name": "Include Total Attempts",
 			"description": "Includes the total attempt count in a level (stylized like \"<cy> / this</c>\") next to your \"Attempt\"/\"Attempts\" label.",
 			"type": "bool",
-			"default": true
+			"default": false
 		},
 		"totalTime": {
 			"name": "Include Total Time",
@@ -178,7 +178,7 @@
 		},
 		"accuratePosition": {
 			"name": "Accurate Player Position",
-			"description": "Adds four more decimal points to the player's X and Y positions in the first section.\n\n<cy>(If you want accurate player positions while your player's X or Y position is in the negatives, consider buying MegaHack v8 instead; levels won't let you get there anyways without a start position.)</c>",
+			"description": "Adds two more decimal points to the player's X and Y positions in the first section.\n\n<cy>If you want accurate player positions while your player's X or Y position is in the negatives, consider buying MegaHack v8 instead; levels won't let you get there anyways without a start position.</c>",
 			"type": "bool",
 			"default": true
 		},
@@ -216,7 +216,7 @@
 		},
 		"cameraProperties": {
 			"name": "Camera Properties",
-			"description": "Adds an additional section of info related to the camera's state (named \"Camera\"), including zoom, rotation, position, shake factor, and offset.",
+			"description": "Adds an additional section of info related to the camera's state (named \"Camera\"), including zoom, rotation, position, shake factor, and offset.\n\n<cy>The shake factor will sometimes be equal to \"-0.01\" or something similar, thanks to a skill deficiency on RobTop's end. Don't you just love floating point values? :)</c>",
 			"type": "bool",
 			"default": false
 		},

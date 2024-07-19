@@ -11,6 +11,7 @@ using namespace geode::prelude;
 static std::regex tapsCountRegex(R"(Taps: (\d+)\n)", std::regex::optimize | std::regex::icase);
 static std::regex timeLabelRegex(R"(Time: (\d+(\.\d+)?))", std::regex::optimize | std::regex::icase);
 static std::regex levelIDRegex(R"(Level ?ID: (\d+))", std::regex::optimize | std::regex::icase);
+static std::regex attemptCountRegex(R"(Attempts?: (\d+))", std::regex::optimize | std::regex::icase);
 static std::regex asciiOnlyMaxTwentyRegex(R"([\x00-\x7F]{0,20})", std::regex::optimize | std::regex::icase);
 
 class $modify(MyPlayLayer, PlayLayer) {
@@ -288,7 +289,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			}
 			m_fields->scaleSet = true;
 		}
-		if ((Utils::getBool("positionAlignRight") || Utils::getBool("positionAlignBottom"))) {
+		if (Utils::getBool("positionAlignRight") || Utils::getBool("positionAlignBottom")) {
 			debugTextNode->ignoreAnchorPointForPosition(false);
 			debugTextNode->setAnchorPoint({
 				Utils::getBool("positionAlignRight") ? 1.f : 0.f, // positionAlignRight: anchorPointX
@@ -319,7 +320,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			);
 		}
 		#endif
-		if (Utils::getBool("hIDe") && m_level->m_levelType == GJLevelType::Editor) {
+		if (Utils::getBool("hIDe") && (m_level->m_levelType == GJLevelType::Editor || m_level->m_unlisted)) {
 			std::smatch match;
 			if (std::regex_search(debugTextContents, match, levelIDRegex)) {
 				debugTextContents = replaceXWithYInZ(
@@ -349,6 +350,16 @@ class $modify(MyPlayLayer, PlayLayer) {
 				); // attempt time from playlayer gamestate member: m_gameState.m_levelTime
 			}
 		}
+		if (Utils::getBool("totalAttempts")) {
+			std::smatch match;
+			if (std::regex_search(debugTextContents, match, attemptCountRegex)) {
+				debugTextContents = replaceXWithYInZ(
+					"Attempts?: \\d+\nTaps: ",
+					fmt::format("Attempt: {} / {}\nTaps: ", match[1].str(), m_level->m_attempts.value()),
+					debugTextContents
+				); // total attempt count: m_level->m_attempts.value() [playlayer]
+			}
+		}
 		if (Utils::getBool("accuratePosition")) {
 			debugTextContents = replaceXWithYInZ("\nX: (\\d)+\n", fmt::format("\nX: {:.4f}\n", m_player1->m_position.x), debugTextContents);
 			debugTextContents = replaceXWithYInZ("\nY: (\\d)+\n", fmt::format("\nY: {:.4f}\n", m_player1->m_position.y), debugTextContents);
@@ -375,13 +386,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 			);
 		}
 		if (Utils::getBool("conditionalValues")) {
-			/*
-			debugTextContents = replaceXWithYInZ("\n(TimeWarp|Gravity): 1\n", "\n", debugTextContents);
-			debugTextContents = replaceXWithYInZ("\n(Gradients|Particles|Channel): 0", "", debugTextContents);
-			debugTextContents = replaceXWithYInZ("\n(Move|Songs|SFX|Rotate|Scale|Follow): 0\n", "\n", debugTextContents);
-			debugTextContents = replaceXWithYInZ("\n-- Perf --\n--", "\n--", debugTextContents);
-			debugTextContents = replaceXWithYInZ("\n(Move|Rotate|Scale|Follow|ColOp): 0 / 0", "", debugTextContents);
-			*/
 			// cannot condense into one regex per situation it seems
 			debugTextContents = replaceXWithYInZ("\nTimeWarp: 1\n", "\n", debugTextContents);
 			debugTextContents = replaceXWithYInZ("\nGravity: 1\n", "\n", debugTextContents);

@@ -130,7 +130,7 @@
 		},
 		"hIDe": {
 			"name": "\"hIDe\"",
-			"description": "<cp>Inspired by</c> <cj>Alphalaneous</c>.\n\n<cp>Similar</c> <cj>to their hIDe mod prior to GD 2.206</c>, this option \"hides\" the Level ID in the info label if you are playing a custom editor level.\n\n<cy>This option does NOT require the hIDe mod to be installed, and pressing/holding the Shift key has no effect.</c>",
+			"description": "<cp>Inspired by</c> <cj>Alphalaneous</c>.\n\n<cp>Similar</c> <cj>to their hIDe mod prior to GD 2.206</c>, this option \"hides\" the Level ID in the info label if you are playing a custom editor level. <cl>However, unlike Alphalaneous' \"hIDe\" mod, this will also hide level IDs on unlisted levels.</c>.\n\n<cy>This option does NOT require the hIDe mod to be installed, and pressing/holding the Shift key has no effect.</c>",
 			"type": "bool",
 			"default": true
 		},
@@ -161,6 +161,12 @@
 		"jumps": {
 			"name": "Include Jumps",
 			"description": "Includes your current session's jump count (stylized like <cy>[this]</c>) next to your \"Taps\"/\"Clicks\"/\"Actions\" label.",
+			"type": "bool",
+			"default": true
+		},
+		"totalAttempts": {
+			"name": "Include Total Attempts",
+			"description": "Includes the total attempt count in a level (stylized like \"<cy> / this</c>\") next to your \"Attempt\"/\"Attempts\" label.",
 			"type": "bool",
 			"default": true
 		},

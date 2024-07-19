@@ -28,10 +28,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		std::string endsWithArea = "\n-- Area --\n";
 		std::vector<std::string> hIDe = {
-			"Withheld", "Shh...",
+			"It's locked!", "Shh...",
 			"Nonzero", "Streisand",
 			"N/A", "Expunged",
-			"Oh, look!", "hIDden"
+			"Locked", "hIDden"
 		};
 	};
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {

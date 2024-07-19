@@ -6,6 +6,9 @@ Adds additional information to GD's Info Label, or compacts portions of it. (For
 
 <cy>*Windows users: If [Minecraftify](mod:zalphalaneous.minecraftify) is loaded, it will hide the Info Label in favor of Minecraftify's own info label layout (resembling Minecraft's F3 menu). This mod will not run if Minecraftify is loaded; adding an incompatibility means wasting time (dis/re-en)abling this mod.*</c>
 
+Featured level: And Ever by galofuf
+![demoOne](raydeeux.infolabeltweaks/demoOne.png&scale:0.75)
+
 Extra information displayed:
 * Player Status (speed, vehicle, direction, size, gravity, dashing/alive/dual statuses)
 * Level Traits (level type, length, 2P status, completion status)

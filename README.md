@@ -34,7 +34,8 @@ Additional features:
     * Current gameplay channel
     * FPS
     * Custom footer text (Please use this feature responsibly.)
-    * Resolve various visual annoyances:
+
+Resolve various visual annoyances:
     * "LevelID" -> "Level ID"
     * "Taps" -> "Actions" on Platformer, "Clicks" on Classic
     * "-- Perf --" -> "-- Performance --"

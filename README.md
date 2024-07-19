@@ -4,7 +4,7 @@ Adds additional information to GD's Info Label, or compacts portions of it. (For
 
 *Note: As of writing, not all features are available across all platforms. Install the mod from the [Geode index](https://geode-sdk.org/mods/raydeeux.infolabeltweaks) to confirm.*
 
-*Windows users: If [Minecraftify](mod:zalphalaneous.minecraftify) is loaded, it will hide the Info Label in favor of Minecraftify's own info label layout (resembling Minecraft's F3 menu). This mod will not run if Minecraftify is loaded; adding an incompatibility means wasting time (dis/re-en)abling this mod.*
+*Windows users: If [Minecraftify](https://geode-sdk.org/mods/zalphalaneous.minecraftify) is loaded, it will hide the Info Label in favor of Minecraftify's own info label layout (resembling Minecraft's F3 menu). This mod will not run if Minecraftify is loaded; adding an incompatibility means wasting time (dis/re-en)abling this mod.*
 
 Featured level: And Ever by galofuf
 ![demoOne](https://github.com/RayDeeUx/InfoLabelTweaks/blob/main/resources/demoOne.png)

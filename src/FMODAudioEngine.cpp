@@ -1,4 +1,3 @@
-#ifndef __APPLE__
 #include <Geode/modify/FMODAudioEngine.hpp>
 #include "Manager.hpp"
 #include "Utils.hpp"
@@ -62,16 +61,15 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 		}
 		return result;
 	}
-	void preloadEffect(gd::string p0) {
-		FMODAudioEngine::sharedEngine()->preloadEffect(p0);
+	void preloadEffect(gd::string path) {
+		FMODAudioEngine::sharedEngine()->preloadEffect(path);
 		if (!Utils::modEnabled() || !PlayLayer::get()) { return; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
-		if (std::find(m_fields->vanillaSFX.begin(), m_fields->vanillaSFX.end(), p0) != m_fields->vanillaSFX.end()) { return; } // ignore vanilla sfx, the debug menu should only record sfx from the level itself
-		m_fields->manager->lastPlayedEffect = parsePath(p0);
+		if (std::find(m_fields->vanillaSFX.begin(), m_fields->vanillaSFX.end(), path) != m_fields->vanillaSFX.end()) { return; } // ignore vanilla sfx, the debug menu should only record sfx from the level itself
+		m_fields->manager->lastPlayedEffect = parsePath(path);
 	}
-	void loadMusic(gd::string p0, float p1, float p2, float p3, bool p4, int p5, int p6) {
-		FMODAudioEngine::sharedEngine()->loadMusic(p0, p1, p2, p3, p4, p5, p6);
+	void loadMusic(gd::string path, float speed, float p2, float volume, bool shouldLoop, int p5, int p6) {
+		FMODAudioEngine::sharedEngine()->loadMusic(path, speed, p2, volume, shouldLoop, p5, p6);
 		if (!Utils::modEnabled() || !PlayLayer::get()) { return; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
-		m_fields->manager->lastPlayedSong = parsePath(p0);
+		m_fields->manager->lastPlayedSong = parsePath(path);
 	}
 };
-#endif

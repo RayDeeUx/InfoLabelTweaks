@@ -38,7 +38,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) { return ""; }
 		std::string status = "Unknown";
 
-		bool isPlat = m_level->isPlatformer();
+		bool isPlat = thePlayer->m_isPlatformer;
 		bool compactDirs = Utils::getBool("compactDirections");
 
 		if (thePlayer->m_isShip) {

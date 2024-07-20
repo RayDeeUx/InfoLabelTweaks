@@ -23,8 +23,8 @@ public:
 	std::string platform = "";
 	std::string forwardCompat = "";
 
-	std::string lastPlayedSong = "[TodoReturn]";
-	std::string lastPlayedEffect = "[TodoReturn]";
+	std::string lastPlayedSong = "N/A";
+	std::string lastPlayedEffect = "N/A";
 	
 	bool isMinecraftify = false;
 

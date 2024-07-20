@@ -225,6 +225,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->opacitySet = false;
 		m_fields->hIDeSet = "";
 		m_fields->debugText = nullptr;
+		m_fields->manager->lastPlayedSong = "N/A";
+		m_fields->manager->lastPlayedEffect = "N/A";
 		PlayLayer::onQuit();
 	}
 	void levelComplete() {

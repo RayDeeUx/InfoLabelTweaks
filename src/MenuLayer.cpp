@@ -1,5 +1,4 @@
 #include <Geode/modify/MenuLayer.hpp>
-#include <regex>
 #include "Manager.hpp"
 #include "Utils.hpp"
 

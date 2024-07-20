@@ -204,15 +204,13 @@
 			"name": "Show Most Recent Song/Effect",
 			"description": "Includes the filename of the most recently loaded song in the Audio section.\n\n<cy>This setting is currently unavailable on macOS.</c>",
 			"type": "bool",
-			"default": true,
-			"platforms": ["win", "android"]
+			"default": true
 		},
 		"audioFromMods": {
 			"name": "Include Songs/Effects from Mods",
 			"description": "If \"Show Most Recent Song/Effect\" is enabled, songs and SFX file names from other Geode mods will appear in the Audio section. Disabling this will simply show \"[Geode mod]\" instead.\n\n<cy>This setting is currently unavailable on macOS.</c>",
 			"type": "bool",
-			"default": true,
-			"platforms": ["win", "android"]
+			"default": true
 		},
 		"cameraProperties": {
 			"name": "Camera Properties",

@@ -311,7 +311,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 				debugTextContents
 			);
 		}
-		#ifndef __APPLE__
 		if (Utils::getBool("lastPlayedAudio")) {
 			debugTextContents = replaceXWithYInZ(
 				"\n(\r)?-- Audio --\nSongs: ",
@@ -319,7 +318,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 				debugTextContents
 			);
 		}
-		#endif
 		if (Utils::getBool("hIDe") && (m_level->m_levelType == GJLevelType::Editor || m_level->m_unlisted)) {
 			std::smatch match;
 			if (std::regex_search(debugTextContents, match, levelIDRegex)) {

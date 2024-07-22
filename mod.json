@@ -196,7 +196,7 @@
 		},
 		"levelTraits": {
 			"name": "Level Traits",
-			"description": "Includes info about the current level's traits.",
+			"description": "Includes info about the current level's traits.\n\n<cy>Note that all main levels are considered \"Tiny\". No, I will not be hardcoding the level's length.</c>",
 			"type": "bool",
 			"default": false
 		},

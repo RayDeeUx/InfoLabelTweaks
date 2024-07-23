@@ -23,6 +23,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool textAlignmentSet = false;
 		bool scaleSet = false;
 		bool opacitySet = false;
+		bool fontSet = false;
 		std::string hIDeSet = "";
 		CCNode* debugText = nullptr;
 
@@ -223,6 +224,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->textAlignmentSet = false;
 		m_fields->scaleSet = false;
 		m_fields->opacitySet = false;
+		m_fields->fontSet = false;
 		m_fields->hIDeSet = "";
 		m_fields->debugText = nullptr;
 		m_fields->manager->lastPlayedSong = "N/A";
@@ -279,6 +281,17 @@ class $modify(MyPlayLayer, PlayLayer) {
 			}
 			m_fields->opacitySet = true;
 		}
+		if (!m_fields->fontSet) {
+			int64_t fontID = Utils::getInt("customFont");
+			if (fontID == -2) {
+				debugTextNode->setFntFile("goldFont.fnt");
+			} else if (fontID == -1) {
+				debugTextNode->setFntFile("bigFont.fnt");
+			} else if (fontID != 0) {
+				debugTextNode->setFntFile(fmt::format("gjFont{}.fnt", fontID).c_str());
+			}
+			m_fields->fontSet = true;
+		}
 		if (!m_fields->textAlignmentSet && Utils::getBool("textAlignRight")) {
 			debugTextNode->setAlignment(CCTextAlignment::kCCTextAlignmentRight);
 			m_fields->textAlignmentSet = true;
@@ -299,14 +312,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 			});
 			if (Utils::getBool("positionAlignRight")) { debugTextNode->setPositionX(CCDirector::get()->getWinSize().width - 5); }
 			if (Utils::getBool("positionAlignBottom")) { debugTextNode->setPositionY(10); }
-		}
-		int64_t fontID = Utils::getInt("customFont");
-		if (fontID == -2) {
-			debugTextNode->setFntFile("goldFont.fnt");
-		} else if (fontID == -1) {
-			debugTextNode->setFntFile("bigFont.fnt");
-		} else if (fontID != 0) {
-			debugTextNode->setFntFile(fmt::format("gjFont{}.fnt", fontID).c_str());
 		}
 
 		std::string debugTextContents = debugTextNode->getString();

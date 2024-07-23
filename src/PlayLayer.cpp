@@ -300,6 +300,14 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (Utils::getBool("positionAlignRight")) { debugTextNode->setPositionX(CCDirector::get()->getWinSize().width - 5); }
 			if (Utils::getBool("positionAlignBottom")) { debugTextNode->setPositionY(10); }
 		}
+		int64_t fontID = Utils::getInt("customFont");
+		if (fontID == -2) {
+			debugTextNode->setFntFile("goldFont.fnt");
+		} else if (fontID == -1) {
+			debugTextNode->setFntFile("bigFont.fnt");
+		} else if (fontID != 0) {
+			debugTextNode->setFntFile(fmt::format("gjFont{}.fnt", fontID).c_str());
+		}
 
 		std::string debugTextContents = debugTextNode->getString();
 

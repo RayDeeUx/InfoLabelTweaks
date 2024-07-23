@@ -87,7 +87,7 @@
 			}
 		},
 		"customFont": {
-			"name": "Font ID",
+			"name": "Font #",
 			"description": "Sets the font of the info label. Default is 0 (falls back to <cl>chatFont</c>, as seen in vanilla Geometry Dash).\n\nNotes:\n- <cj>-1 for Pusab, -2 for Golden Pusab.</c>\n- <cy>Refer to the level editor for the font each number corresponds to.</c>",
 			"type": "int",
 			"default": 0,

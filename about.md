@@ -24,6 +24,7 @@ Additional features:
   * Custom scale
   * Right Text Align
   * Right/Bottom Position Align
+  * Setting a different font
 * Remove portions of the info label when values are unused, including sections added by this mod (Conditional Labels)
 * Compact sections of the info label when possible
 * Show extra tidbits:

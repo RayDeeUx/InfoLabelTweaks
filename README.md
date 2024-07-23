@@ -18,27 +18,28 @@ Extra information displayed:
 Additional features:
 * "hIDe" Level IDs on custom editor levels and unlisted levels
 * Various options to make the info label readable in a wider range of circumstances, including incredibly bright backgrounds
-    * Readable Mode (Blending)
-    * Chroma Mode
-    * Custom scale
-    * Right Text Align
-    * Right/Bottom Position Align
+  * Readable Mode (Blending)
+  * Chroma Mode
+  * Custom Scale
+  * Right Text Align
+  * Right/Bottom Position Align
+  * Setting a different font
 * Remove portions of the info label when values are unused, including sections added by this mod (Conditional Labels)
 * Compact sections of the info label when possible
 * Show extra tidbits:
-    * Four decimal places in player position
-    * Name of most recent song/SFX file played in a level
-    * Total attempt count
-    * Total time during level session (Platformer levels only, view description for more info)
-    * Jump count per level session
-    * Current gameplay channel
-    * FPS
-    * Custom footer text (Please use this feature responsibly.)
+  * Four decimal places in player position
+  * Name of most recent song/SFX file played in a level
+  * Total attempt count
+  * Total time during level session (Platformer levels only, view description for more info)
+  * Jump count per level session
+  * Current gameplay channel
+  * FPS
+  * Custom footer text (Please use this feature responsibly.)
 
 Resolve various visual annoyances:
-    * "LevelID" -> "Level ID"
-    * "Taps" -> "Actions" on Platformer, "Clicks" on Classic
-    * "-- Perf --" -> "-- Performance --"
-    * Add "-- Gameplay --" header to first section
+  * "LevelID" -> "Level ID"
+  * "Taps" -> "Actions" on Platformer, "Clicks" on Classic
+  * "-- Perf --" -> "-- Performance --"
+  * Add "-- Gameplay --" header to first section
 
 This [Geode mod](https://geode-sdk.org) is licensed under LGPLv2.

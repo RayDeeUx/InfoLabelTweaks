@@ -113,14 +113,14 @@ class $modify(MyPlayLayer, PlayLayer) {
 			std::string xPos = fmt::format("{:.{}f}", playerPos.x, positionAccuracy);
 			std::string yPos = fmt::format("{:.{}f}", playerPos.y, positionAccuracy);
 
-			playerPosition = playerPosition.append(fmt::format("({}, {}) \\ ", xPos, yPos));
+			playerPosition = playerPosition.append(fmt::format("({}, {}) / ", xPos, yPos));
 		}
 
 		int statusAccuracy = Utils::getBool("accuratePlayerStatus") ? 2 : 0;
 		float xVelo = thePlayer->m_isPlatformer ? thePlayer->m_platformerXVelocity : thePlayer->m_playerSpeed;
 		std::string xVeloStr = fmt::format("{:.{}f}", xVelo, statusAccuracy);
 		std::string yVeloStr = fmt::format("{:.{}f}", thePlayer->m_yVelocity, statusAccuracy);
-		std::string fullVelocity = fmt::format("Velo: <{}, {}> \\ ", xVeloStr, yVeloStr);
+		std::string fullVelocity = fmt::format("Velo: <{}, {}> / ", xVeloStr, yVeloStr);
 
 		std::string rotationStr = fmt::format("{:.{}f}", thePlayer->getRotation(), statusAccuracy);
 		std::string rotationSpeedStr = fmt::format("{:.{}f}", thePlayer->m_rotationSpeed, statusAccuracy);

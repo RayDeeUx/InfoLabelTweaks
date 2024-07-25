@@ -1,5 +1,5 @@
 {
-	"geode": "3.3.0",
+	"geode": "3.3.1",
 	"gd": {
 		"win": "2.206",
 		"android": "2.206",
@@ -202,7 +202,13 @@
 		},
 		"accuratePosition": {
 			"name": "Accurate Player Position",
-			"description": "Adds two more decimal points to the player's X and Y positions in the first section.\n\n<cy>If you want accurate player positions while your player's X or Y position is in the negatives, consider buying MegaHack v8 instead; levels won't let you get there anyways without a start position.</c>",
+			"description": "Adds four decimal points to the player's X and Y positions in the first section.\n\n<cy>If you want accurate player positions while your player's X or Y position is in the negatives, consider buying MegaHack v8 instead; levels won't let you get there anyways without a start position.</c>",
+			"type": "bool",
+			"default": true
+		},
+		"accuratePlayerStatus": {
+			"name": "Accurate Player Statuses",
+			"description": "Adds four decimal points to other stats about the player, such as X/Y velocity and rotation.",
 			"type": "bool",
 			"default": true
 		},

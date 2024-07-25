@@ -16,6 +16,7 @@ add_library(${PROJECT_NAME} SHARED
         src/CCScheduler.cpp
         src/FMODAudioEngine.cpp
         src/MenuLayer.cpp
+        src/CCKeyboardDispatcher.cpp
         src/CCScheduler.cpp
         src/CCScheduler.cpp
         src/FMODAudioEngine.cpp

@@ -25,6 +25,8 @@ public:
 
 	std::string lastPlayedSong = "N/A";
 	std::string lastPlayedEffect = "N/A";
+
+	std::string lastKeyName = "N/A";
 	
 	bool isMinecraftify = false;
 

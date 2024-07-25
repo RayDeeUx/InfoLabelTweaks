@@ -4,7 +4,7 @@ Adds additional information to GD's Info Label, or compacts portions of it. (For
 
 <cy>*Note: As of writing, not all features are available across all platforms. Install the mod n your device to confirm.*</c>
 
-<cy>*Windows users: If [Minecraftify](mod:zalphalaneous.minecraft) is loaded, it will hide the Info Label in favor of Minecraftify's own info label layout (resembling Minecraft's F3 menu). This mod will not run if Minecraftify is loaded; adding an incompatibility means wasting time (dis/re-en)abling this mod.*</c>
+<cy>*If [Minecraftify](mod:zalphalaneous.minecraft) is loaded, it will hide the Info Label in favor of Minecraftify's own info label layout (resembling Minecraft's F3 menu). This mod will not run if Minecraftify is loaded; adding an incompatibility means wasting time (dis/re-en)abling this mod.*</c>
 
 Featured level: And Ever by galofuf
 

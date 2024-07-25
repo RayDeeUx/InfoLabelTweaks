@@ -25,7 +25,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool opacitySet = false;
 		bool fontSet = false;
 		std::string hIDeSet = "";
-		std::string lastKeyName = "N/A";
 		CCNode* debugText = nullptr;
 
 		std::string endsWithArea = "\n-- Area --\n";
@@ -39,6 +38,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
 		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) { return ""; }
 		std::string status = "Unknown";
+		std::string playerPosition = m_gameState.m_isDualMode ? "Pos: " : "";
 
 		bool isPlat = thePlayer->m_isPlatformer;
 		bool compactDirs = Utils::getBool("compactDirections");
@@ -105,7 +105,32 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		if (thePlayer->m_isDead) { status = status.append(" (Dead)"); }
 
-		return fmt::format("{:.1f}x {}", thePlayer->m_playerSpeed, status);
+		if (m_gameState.m_isDualMode) {
+			int positionAccuracy = Utils::getBool("accuratePosition") ? 4 : 0;
+
+			CCPoint playerPos = thePlayer->m_position;
+			std::string xPos = fmt::format("{:.{}f}", playerPos.x, positionAccuracy);
+			std::string yPos = fmt::format("{:.{}f}", playerPos.y, positionAccuracy);
+
+			playerPosition = playerPosition.append(fmt::format("({}, {}) | ", xPos, yPos));
+		}
+
+		int statusAccuracy = Utils::getBool("accuratePlayerStatus") ? 4 : 0;
+		float xVelo = thePlayer->m_isPlatformer ? thePlayer->m_playerSpeed : thePlayer->m_platformerXVelocity;
+		float yVelo = thePlayer->m_yVelocity;
+		std::string xVeloStr = fmt::format("{:.{}f}", xVelo, statusAccuracy);
+		std::string yVeloStr = fmt::format("{:.{}f}", yVelo, statusAccuracy);
+		std::string fullVelocity = fmt::format("Velo: <{}, {}> | ", xVeloStr, yVeloStr);
+
+		float rotation = thePlayer->getRotation();
+		float rotationSpeed = thePlayer->m_rotationSpeed;
+		std::string rotationStr = fmt::format("{:.{}f}", rotation, statusAccuracy);
+		std::string rotationSpeedStr = fmt::format("{:.{}f}", rotationSpeed, statusAccuracy);
+		std::string fullRotation = fmt::format("Rot: ({}, {})", rotationStr, rotationSpeedStr);
+
+		std::string posVeloRot = fmt::format("{}{}{}", playerPosition, fullVelocity, fullRotation);
+
+		return fmt::format("{:.1f}x {}\n{}", thePlayer->m_playerSpeed, status, posVeloRot);
 	}
 	std::string buildLevelTraitsString() {
 		if (!Utils::modEnabled() || !Utils::getBool("levelTraits")) { return ""; }
@@ -230,10 +255,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->opacitySet = false;
 		m_fields->fontSet = false;
 		m_fields->hIDeSet = "";
-		m_fields->lastKeyName = "N/A";
 		m_fields->debugText = nullptr;
 		m_fields->manager->lastPlayedSong = "N/A";
 		m_fields->manager->lastPlayedEffect = "N/A";
+		m_fields->manager->lastKeyName = "N/A";
 		PlayLayer::onQuit();
 	}
 	void levelComplete() {
@@ -243,11 +268,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 	void setupHasCompleted() {
 		m_fields->hIDeSet = hIDeString();
 		PlayLayer::setupHasCompleted();
-	}
-	void keyDown(enumKeyCodes key) {
-		log::info("CCKeyboardDispatcher::get()->keyToString(key): {}",CCKeyboardDispatcher::get()->keyToString(key));
-		m_fields->lastKeyName = CCKeyboardDispatcher::get()->keyToString(key);
-		PlayLayer::keyDown(key);
 	}
 	void postUpdate(float dt) {
 		PlayLayer::postUpdate(dt);
@@ -324,7 +344,11 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::string debugTextContents = debugTextNode->getString();
 
 		if (Utils::getBool("logDebugText")) {
-			log::info("--- LOGGED DEBUG TEXT [BEFORE INFOLABELTWEAKS] ---:\n{}", debugTextContents);
+			log::info("\n--- LOGGED DEBUG TEXT [BEFORE INFOLABELTWEAKS] ---\n{}", debugTextContents);
+		}
+		if (m_gameState.m_isDualMode && Utils::getBool("playerStatus")) {
+			debugTextContents = replaceXWithYInZ("\nX: \\d+\nY:", "\nY:", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nY: \\d+\nActive:", "\nActive:", debugTextContents);
 		}
 		if (Utils::getBool("currentChannel")) {
 			debugTextContents = replaceXWithYInZ(
@@ -456,7 +480,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			std::string fps = Utils::getBool("fps") ?
 				fmt::format("FPS: {}", m_fields->manager->fps) : "";
 			std::string lastKey = Utils::getBool("lastKey") ?
-				fmt::format("Last Key: {}", m_fields->lastKeyName) : "";
+				fmt::format("Last Key: {}", m_fields->manager->lastKeyName) : "";
 			std::string merger = "";
 			if (!fps.empty() && !lastKey.empty())
 				merger = Utils::getBool("compactGameplay") ? " | " : "\n";
@@ -479,7 +503,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			}
 		}
 		if (Utils::getBool("logDebugText")) {
-			log::info("--- LOGGED DEBUG TEXT [AFTER INFOLABELTWEAKS] ---:\n{}", debugTextContents);
+			log::info("\n--- LOGGED DEBUG TEXT [AFTER INFOLABELTWEAKS] ---\n{}", debugTextContents);
 		}
 		// last hurrah
 		debugTextContents = replaceXWithYInZ("\n\n", "\n", debugTextContents);

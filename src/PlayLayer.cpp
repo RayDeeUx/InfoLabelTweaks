@@ -25,6 +25,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool opacitySet = false;
 		bool fontSet = false;
 		std::string hIDeSet = "";
+		std::string lastKeyName = "N/A";
 		CCNode* debugText = nullptr;
 
 		std::string endsWithArea = "\n-- Area --\n";
@@ -217,6 +218,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::shuffle(m_fields->hIDe.begin(), m_fields->hIDe.end(), randomSeed);
 		return m_fields->hIDe.front();
 	}
+	static std::string replaceXWithYInZ(const std::string& forRegex, const std::string& replacement, const std::string& mainString) {
+		return std::regex_replace(mainString, std::regex(forRegex), replacement);
+	}
 	void onQuit() {
 		m_fields->isLevelComplete = false;
 		m_fields->appliedBlending = false;
@@ -226,6 +230,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->opacitySet = false;
 		m_fields->fontSet = false;
 		m_fields->hIDeSet = "";
+		m_fields->lastKeyName = "N/A";
 		m_fields->debugText = nullptr;
 		m_fields->manager->lastPlayedSong = "N/A";
 		m_fields->manager->lastPlayedEffect = "N/A";
@@ -239,8 +244,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->hIDeSet = hIDeString();
 		PlayLayer::setupHasCompleted();
 	}
-	static std::string replaceXWithYInZ(const std::string& forRegex, const std::string& replacement, const std::string& mainString) {
-		return std::regex_replace(mainString, std::regex(forRegex), replacement);
+	void keyDown(enumKeyCodes key) {
+		log::info("CCKeyboardDispatcher::get()->keyToString(key): {}",CCKeyboardDispatcher::get()->keyToString(key));
+		m_fields->lastKeyName = CCKeyboardDispatcher::get()->keyToString(key);
+		PlayLayer::keyDown(key);
 	}
 	void postUpdate(float dt) {
 		PlayLayer::postUpdate(dt);
@@ -445,8 +452,15 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (Utils::getBool("pluralAttempts")) {
 			debugTextContents = replaceXWithYInZ("Attempt: ", "Attempts: ", debugTextContents);
 		}
-		if (Utils::getBool("fps")) {
-			debugTextContents = fmt::format("FPS: {}\n{}", m_fields->manager->fps, debugTextContents);
+		if (Utils::getBool("fps") || Utils::getBool("lastKey")) {
+			std::string fps = Utils::getBool("fps") ?
+				fmt::format("FPS: {}", m_fields->manager->fps) : "";
+			std::string lastKey = Utils::getBool("lastKey") ?
+				fmt::format("Last Key: {}", m_fields->lastKeyName) : "";
+			std::string merger = "";
+			if (!fps.empty() && !lastKey.empty())
+				merger = Utils::getBool("compactGameplay") ? " | " : "\n";
+			debugTextContents = fmt::format("{}{}{}\n{}", fps, merger, lastKey, debugTextContents);
 		}
 		if (Utils::getBool("gameplayHeader")) {
 			debugTextContents = fmt::format("-- Gameplay --\n{}", debugTextContents);

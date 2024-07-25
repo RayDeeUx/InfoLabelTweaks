@@ -164,16 +164,23 @@
 			"default": true
 		},
 		"currentChannel": {
-			"name": "Show Current Channel",
+			"name": "Current Channel",
 			"description": "Shows the currently active channel.",
 			"type": "bool",
 			"default": true
 		},
 		"fps": {
-			"name": "Show FPS",
+			"name": "FPS",
 			"description": "Includes your FPS count.",
 			"type": "bool",
 			"default": false
+		},
+		"lastKey": {
+			"name": "Last Key Pressed",
+			"description": "Shows the name of the last key you pressed, stylized like \"Last Key: [name]\".\n\n<cy>This will next to your FPS count if you have toggle on \"Compact Gameplay\".</c>",
+			"type": "bool",
+			"default": false,
+			"platforms": ["win", "mac"]
 		},
 		"jumps": {
 			"name": "Include Jumps",

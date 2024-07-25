@@ -208,7 +208,7 @@
 		},
 		"accuratePlayerStatus": {
 			"name": "Accurate Player Statuses",
-			"description": "Adds four decimal points to other stats about the player, such as X/Y velocity and rotation.",
+			"description": "Adds two decimal points to other stats about the player, such as X/Y velocity and rotation.",
 			"type": "bool",
 			"default": true
 		},

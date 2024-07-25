@@ -39,6 +39,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) { return ""; }
 		std::string status = "Unknown";
 		std::string playerPosition = m_gameState.m_isDualMode ? "Pos: " : "";
+		std::string playerNum = thePlayer == this->m_player1 ? "P1" : "P2";
 
 		bool isPlat = thePlayer->m_isPlatformer;
 		bool compactDirs = Utils::getBool("compactDirections");
@@ -112,25 +113,27 @@ class $modify(MyPlayLayer, PlayLayer) {
 			std::string xPos = fmt::format("{:.{}f}", playerPos.x, positionAccuracy);
 			std::string yPos = fmt::format("{:.{}f}", playerPos.y, positionAccuracy);
 
-			playerPosition = playerPosition.append(fmt::format("({}, {}) | ", xPos, yPos));
+			playerPosition = playerPosition.append(fmt::format("({}, {}) \\ ", xPos, yPos));
 		}
 
-		int statusAccuracy = Utils::getBool("accuratePlayerStatus") ? 4 : 0;
-		float xVelo = thePlayer->m_isPlatformer ? thePlayer->m_playerSpeed : thePlayer->m_platformerXVelocity;
-		float yVelo = thePlayer->m_yVelocity;
+		int statusAccuracy = Utils::getBool("accuratePlayerStatus") ? 2 : 0;
+		float xVelo = thePlayer->m_isPlatformer ? thePlayer->m_platformerXVelocity : thePlayer->m_playerSpeed;
 		std::string xVeloStr = fmt::format("{:.{}f}", xVelo, statusAccuracy);
-		std::string yVeloStr = fmt::format("{:.{}f}", yVelo, statusAccuracy);
-		std::string fullVelocity = fmt::format("Velo: <{}, {}> | ", xVeloStr, yVeloStr);
+		std::string yVeloStr = fmt::format("{:.{}f}", thePlayer->m_yVelocity, statusAccuracy);
+		std::string fullVelocity = fmt::format("Velo: <{}, {}> \\ ", xVeloStr, yVeloStr);
 
-		float rotation = thePlayer->getRotation();
-		float rotationSpeed = thePlayer->m_rotationSpeed;
-		std::string rotationStr = fmt::format("{:.{}f}", rotation, statusAccuracy);
-		std::string rotationSpeedStr = fmt::format("{:.{}f}", rotationSpeed, statusAccuracy);
-		std::string fullRotation = fmt::format("Rot: ({}, {})", rotationStr, rotationSpeedStr);
+		std::string rotationStr = fmt::format("{:.{}f}", thePlayer->getRotation(), statusAccuracy);
+		std::string rotationSpeedStr = fmt::format("{:.{}f}", thePlayer->m_rotationSpeed, statusAccuracy);
+		std::string fullRotation = fmt::format("Rot: [{}, {}]", rotationStr, rotationSpeedStr);
 
-		std::string posVeloRot = fmt::format("{}{}{}", playerPosition, fullVelocity, fullRotation);
+		std::string posVeloRot = fmt::format("[{}] {}{}{}", playerNum, playerPosition, fullVelocity, fullRotation);
 
-		return fmt::format("{:.1f}x {}\n{}", thePlayer->m_playerSpeed, status, posVeloRot);
+		std::string fullPlayerStatus = fmt::format("{:.1f}x {}\n{}", thePlayer->m_playerSpeed, status, posVeloRot);
+
+		// last hurrah
+		fullPlayerStatus = replaceXWithYInZ("\\.0+0", "", fullPlayerStatus);
+
+		return fullPlayerStatus;
 	}
 	std::string buildLevelTraitsString() {
 		if (!Utils::modEnabled() || !Utils::getBool("levelTraits")) { return ""; }

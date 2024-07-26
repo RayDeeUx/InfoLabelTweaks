@@ -306,7 +306,8 @@
 			"name": "Custom Footer",
 			"description": "Add your own custom text to appear at the very end of the info label, stylized <cl>-- [like this] --</c>. Leave this setting at its default value (an empty string) to disable this setting.\n\n<cy>Only the first 20 characters of what you set here will be accepted.</c>",
 			"type": "string",
-			"default": ""
+			"default": "",
+			"filter": "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~•"
 		},
 		"logDebugText": {
 			"name": "Enable Logging",

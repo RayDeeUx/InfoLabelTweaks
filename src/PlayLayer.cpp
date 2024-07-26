@@ -8,8 +8,40 @@
 
 using namespace geode::prelude;
 
+/*
+
+sample debug text contents:
+
+LevelID: 0
+Time: 0
+Attempt: 1
+Taps: 0
+TimeWarp: 1
+Gravity: 1
+X: 0
+Y: 105
+Active: 14
+Gradients: 0
+Particles: 120
+-- Audio --
+Songs: 1
+SFX: 1
+-- Perf --
+Move: 0
+Rotate: 0
+Scale: 0
+Follow: 0
+-- Area --
+Move: 0 / 0
+Rotate: 0 / 0
+Scale: 0 / 0
+ColOp: 0 / 0
+
+*/
+
 static std::regex tapsCountRegex(R"(Taps: (\d+)\n)", std::regex::optimize | std::regex::icase);
 static std::regex timeLabelRegex(R"(Time: (\d+(\.\d+)?))", std::regex::optimize | std::regex::icase);
+static std::regex gravityModRegex(R"(Gravity: (\d+(\.\d+)?))", std::regex::optimize | std::regex::icase);
 static std::regex levelIDRegex(R"(Level ?ID: (\d+))", std::regex::optimize | std::regex::icase);
 static std::regex attemptCountRegex(R"(Attempts?: (\d+))", std::regex::optimize | std::regex::icase);
 static std::regex asciiOnlyMaxTwentyRegex(R"([\x00-\x7F]{0,20})", std::regex::optimize | std::regex::icase);
@@ -24,6 +56,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool scaleSet = false;
 		bool opacitySet = false;
 		bool fontSet = false;
+		bool isDual = false;
 		std::string hIDeSet = "";
 		CCNode* debugText = nullptr;
 
@@ -38,8 +71,12 @@ class $modify(MyPlayLayer, PlayLayer) {
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
 		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) { return ""; }
 		std::string status = "Unknown";
-		std::string playerPosition = m_gameState.m_isDualMode ? "Pos: " : "";
-		std::string playerNum = thePlayer == this->m_player1 ? "P1" : "P2";
+		std::string playerNum = "";
+		std::string fullVelocity = "";
+		std::string fullRotation = "";
+
+		std::string playerPosition = m_fields->isDual ? "Pos: " : "";
+		if (m_fields->isDual) { playerNum = fmt::format("[{}] ", thePlayer == this->m_player1 ? "P1" : "P2"); }
 
 		bool isPlat = thePlayer->m_isPlatformer;
 		bool compactDirs = Utils::getBool("compactDirections");
@@ -98,7 +135,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (thePlayer->m_isHidden) { status = fmt::format("Hidden {}", status); }
 
 		if (thePlayer != m_player2) {
-			if (m_gameState.m_isDualMode) { status = status.append(" [Dual]"); }
+			if (m_fields->isDual) { status = status.append(" [Dual]"); }
 
 			if (m_isPracticeMode) { status = status.append(" {Practice}"); }
 			else if (m_isTestMode) { status = status.append(" {Testmode}"); }
@@ -106,31 +143,43 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		if (thePlayer->m_isDead) { status = status.append(" (Dead)"); }
 
-		if (m_gameState.m_isDualMode) {
+		if (m_fields->isDual) {
 			int positionAccuracy = Utils::getBool("accuratePosition") ? 4 : 0;
 
 			CCPoint playerPos = thePlayer->m_position;
 			std::string xPos = fmt::format("{:.{}f}", playerPos.x, positionAccuracy);
 			std::string yPos = fmt::format("{:.{}f}", playerPos.y, positionAccuracy);
 
-			playerPosition = playerPosition.append(fmt::format("({}, {}) / ", xPos, yPos));
+			playerPosition = playerPosition.append(fmt::format("({}, {})", xPos, yPos));
 		}
 
-		int statusAccuracy = Utils::getBool("accuratePlayerStatus") ? 2 : 0;
-		float xVelo = thePlayer->m_isPlatformer ? thePlayer->m_platformerXVelocity : thePlayer->m_playerSpeed;
-		std::string xVeloStr = fmt::format("{:.{}f}", xVelo, statusAccuracy);
-		std::string yVeloStr = fmt::format("{:.{}f}", thePlayer->m_yVelocity, statusAccuracy);
-		std::string fullVelocity = fmt::format("Velo: <{}, {}> / ", xVeloStr, yVeloStr);
 
-		std::string rotationStr = fmt::format("{:.{}f}", thePlayer->getRotation(), statusAccuracy);
-		std::string rotationSpeedStr = fmt::format("{:.{}f}", thePlayer->m_rotationSpeed, statusAccuracy);
-		std::string fullRotation = fmt::format("Rot: [{}, {}]", rotationStr, rotationSpeedStr);
+		if (Utils::getBool("velocityPlayer")) {
+			int veloAccuracy = Utils::getBool("accuratePlayer") ? 2 : 1;
+			float xVelo = thePlayer->m_isPlatformer ? thePlayer->m_platformerXVelocity : thePlayer->m_playerSpeed;
+			std::string xVeloStr = fmt::format("{:.{}f}", xVelo, veloAccuracy);
+			std::string yVeloStr = fmt::format("{:.{}f}", thePlayer->m_yVelocity, veloAccuracy);
+			fullVelocity = fmt::format(" / Velo: <{}, {}>", xVeloStr, yVeloStr);
+			if (!m_fields->isDual && !Utils::getBool("rotationPlayer")) {
+				fullVelocity = fmt::format("Velo: <{}, {}>", xVeloStr, yVeloStr);
+			}
+		}
 
-		std::string posVeloRot = fmt::format("[{}] {}{}{}", playerNum, playerPosition, fullVelocity, fullRotation);
+		if (Utils::getBool("rotationPlayer")) {
+			int rotAccuracy = Utils::getBool("accuratePlayer") ? 2 : 0;
+			std::string rotationStr = fmt::format("{:.{}f}", thePlayer->getRotation(), rotAccuracy);
+			std::string rotationSpeedStr = fmt::format("{:.{}f}", thePlayer->m_rotationSpeed, rotAccuracy);
+			fullRotation = fmt::format(" / Rot: [{}, {}]", rotationStr, rotationSpeedStr);
+			if (!m_fields->isDual && !Utils::getBool("velocityPlayer")) {
+				fullRotation = fmt::format("Rot: [{}, {}]", rotationStr, rotationSpeedStr);
+			}
+		}
+
+		std::string posVeloRot = fmt::format("{}{}{}{}", playerNum, playerPosition, fullVelocity, fullRotation);
 
 		std::string fullPlayerStatus = fmt::format("{:.1f}x {}\n{}", thePlayer->m_playerSpeed, status, posVeloRot);
 
-		// last hurrah
+		// last hurrah, removing dangling decimals
 		fullPlayerStatus = replaceXWithYInZ("\\.0+0", "", fullPlayerStatus);
 
 		return fullPlayerStatus;
@@ -210,12 +259,14 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (Utils::getBool("compactGeode")) {
 			return fmt::format(
 				"-- Geode v{} --\nGD v{} on {}\nMods: {} + {} = {} ({})",
-				manager->geodeVersion, manager->gameVersion, manager->platform, manager->loadedMods, manager->disabledMods, manager->installedMods, manager->problems
+				manager->geodeVersion, manager->gameVersion, manager->platform, manager->loadedMods,
+				manager->disabledMods, manager->installedMods, manager->problems
 			);
 		}
 		return fmt::format(
 			"-- Geode v{} --\nGD v{} on {}\nLoaded: {}\nDisabled: {}\nInstalled: {} ({} problem{})",
-			manager->geodeVersion, manager->gameVersion, manager->platform, manager->loadedMods, manager->disabledMods, manager->installedMods, manager->problems, (manager->problems == 1) ? "" : "s"
+			manager->geodeVersion, manager->gameVersion, manager->platform, manager->loadedMods,
+			manager->disabledMods, manager->installedMods, manager->problems, (manager->problems == 1) ? "" : "s"
 		);
 	}
 	static bool xContainedInY(std::string substring, std::string_view string, bool withColon = true) {
@@ -257,6 +308,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->scaleSet = false;
 		m_fields->opacitySet = false;
 		m_fields->fontSet = false;
+		m_fields->isDual = false;
 		m_fields->hIDeSet = "";
 		m_fields->debugText = nullptr;
 		m_fields->manager->lastPlayedSong = "N/A";
@@ -278,6 +330,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		m_fields->debugText = findDebugTextNode();
 		if (m_fields->debugText == nullptr || !m_fields->debugText->isVisible()) { return; }
+
+		m_fields->isDual = m_gameState.m_isDualMode;
+		bool forcesExist = m_player1->m_affectedByForces;
+		if (!forcesExist && m_fields->isDual && m_player2) { forcesExist = m_player2->m_affectedByForces; }
 
 		CCLabelBMFont* debugTextNode = typeinfo_cast<CCLabelBMFont*>(m_fields->debugText);
 		if (debugTextNode == nullptr || !debugTextNode->isVisible()) { return; }
@@ -349,7 +405,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (Utils::getBool("logDebugText")) {
 			log::info("\n--- LOGGED DEBUG TEXT [BEFORE INFOLABELTWEAKS] ---\n{}", debugTextContents);
 		}
-		if (m_gameState.m_isDualMode && Utils::getBool("playerStatus")) {
+		if (m_fields->isDual && Utils::getBool("playerStatus")) {
 			debugTextContents = replaceXWithYInZ("\nX: \\d+\nY:", "\nY:", debugTextContents);
 			debugTextContents = replaceXWithYInZ("\nY: \\d+\nActive:", "\nActive:", debugTextContents);
 		}
@@ -407,6 +463,16 @@ class $modify(MyPlayLayer, PlayLayer) {
 				); // total attempt count: m_level->m_attempts.value() [playlayer]
 			}
 		}
+		if (Utils::getBool("affectedByForces") && forcesExist) {
+			std::smatch match;
+			if (std::regex_search(debugTextContents, match, gravityModRegex)) {
+				debugTextContents = replaceXWithYInZ(
+					"Gravity: \\d+(\\.\\d+)?\nX: ",
+					fmt::format("Gravity: [{}]\nX: ", match[1].str()),
+					debugTextContents
+				); // worst case scenario: m_gravityMod
+			}
+		}
 		if (Utils::getBool("accuratePosition")) {
 			debugTextContents = replaceXWithYInZ("\nX: (\\d)+\n", fmt::format("\nX: {:.4f}\n", m_player1->m_position.x), debugTextContents);
 			debugTextContents = replaceXWithYInZ("\nY: (\\d)+\n", fmt::format("\nY: {:.4f}\n", m_player1->m_position.y), debugTextContents);
@@ -414,7 +480,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (Utils::getBool("playerStatus")) {
 			debugTextContents = replaceXWithYInZ(
 				"\n-- Audio --",
-				(m_gameState.m_isDualMode) ? fmt::format(
+				(m_fields->isDual) ? fmt::format(
 					"\nP1 Status: {}\nP2 Status: {}\n-- Audio --",
 					buildPlayerStatusString(m_player1),
 					buildPlayerStatusString(m_player2)
@@ -505,11 +571,13 @@ class $modify(MyPlayLayer, PlayLayer) {
 				debugTextContents = debugTextContents.append(fmt::format("-- [{}] --", (customFooter.length() > 20) ? customFooter.substr(20) : customFooter));
 			}
 		}
-		if (Utils::getBool("logDebugText")) {
-			log::info("\n--- LOGGED DEBUG TEXT [AFTER INFOLABELTWEAKS] ---\n{}", debugTextContents);
-		}
+
 		// last hurrah
 		debugTextContents = replaceXWithYInZ("\n\n", "\n", debugTextContents);
 		debugTextNode->setString(debugTextContents.c_str());
+
+		if (Utils::getBool("logDebugText")) {
+			log::info("\n--- LOGGED DEBUG TEXT [AFTER INFOLABELTWEAKS] ---\n{}", debugTextContents);
+		}
 	}
 };

@@ -29,12 +29,14 @@ Additional features:
 * Compact sections of the info label when possible
 * Show extra tidbits:
   * Four decimal places in player position
-  * Name of most recent song/SFX file played in a level
+  * Velocity and rotation info for player statuses
+  * File name of most recent song/SFX played in a level
   * Total attempt count
-  * Total time during level session (Platformer levels only, view description for more info)
+  * Total time during level session (Platformer levels only)
   * Jump count per level session
   * Current gameplay channel
   * FPS
+  * Name of last key pressed (Steam users only)
   * Custom footer text (Please use this feature responsibly.)
 
 Resolve various visual annoyances:

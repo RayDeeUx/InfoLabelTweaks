@@ -200,23 +200,41 @@
 			"type": "bool",
 			"default": true
 		},
+		"affectedByForces": {
+			"name": "Affected by Forces",
+			"description": "Indicates when either Player 1 or Player 2 are affected by force objects <cy>[like this]</c> around the level's current gravity value.",
+			"type": "bool",
+			"default": false
+		},
+		"playerStatus": {
+			"name": "Player Status",
+			"description": "Includes info about the player's current status.\n\n<cp>Applies to both players in duals.</c>\n<cy>Does not include velocity and rotation information by default.</c>",
+			"type": "bool",
+			"default": false
+		},
 		"accuratePosition": {
 			"name": "Accurate Player Position",
 			"description": "Adds four decimal points to the player's X and Y positions in the first section.\n\n<cy>If you want accurate player positions while your player's X or Y position is in the negatives, consider buying MegaHack v8 instead; levels won't let you get there anyways without a start position.</c>",
 			"type": "bool",
 			"default": true
 		},
-		"accuratePlayerStatus": {
-			"name": "Accurate Player Statuses",
-			"description": "Adds two decimal points to other stats about the player, such as X/Y velocity and rotation.",
-			"type": "bool",
-			"default": true
-		},
-		"playerStatus": {
-			"name": "Player Status",
-			"description": "Includes info about the player's current status.",
+		"velocityPlayer": {
+			"name": "Include Velocity",
+			"description": "Adds X/Y velocity information to player statuses. Defaults to one decimal point.",
 			"type": "bool",
 			"default": false
+		},
+		"rotationPlayer": {
+			"name": "Include Rotation",
+			"description": "Adds rotation and rotation speed to player statuses. Defaults to zero decimal points.",
+			"type": "bool",
+			"default": false
+		},
+		"accuratePlayer": {
+			"name": "Accurate Player Statuses",
+			"description": "Uses two decimal points for the player's velocity and rotation information.",
+			"type": "bool",
+			"default": true
 		},
 		"compactDirections": {
 			"name": "Player Direction as Emoticons",

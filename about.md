@@ -2,9 +2,11 @@
 
 Adds additional information to GD's Info Label, or compacts portions of it. (Formerly part of ErysEdits.)
 
-<cy>*Note: As of writing, not all features are available across all platforms. Install the mod n your device to confirm.*</c>
+<cy>*Not all features are available across all platforms. Install the mod n your device to confirm.*</c>
 
 <cy>*If [Minecraftify](mod:zalphalaneous.minecraft) is loaded, it will hide the Info Label in favor of Minecraftify's own info label layout (resembling Minecraft's F3 menu). This mod will not run if Minecraftify is loaded; adding an incompatibility means wasting time (dis/re-en)abling this mod.*</c>
+
+<cy>As of writing, this mod may or may not crash on Subwoofer Lullaby by Magpipe. Enable/disable this mod as necessary.</c>
 
 Featured level: And Ever by galofuf
 
@@ -44,5 +46,7 @@ Resolve various visual annoyances:
   * "Taps" -> "Actions" on Platformer, "Clicks" on Classic
   * "-- Perf --" -> "-- Performance --"
   * Add "-- Gameplay --" header to first section
+
+Mod logo by [dasshu_](https://linktr.ee/jaydasshu)!
 
 This [Geode mod](https://geode-sdk.org) is licensed under LGPLv2. To report bugs or get help with using my mods, press the Discord button in the lower left corner.

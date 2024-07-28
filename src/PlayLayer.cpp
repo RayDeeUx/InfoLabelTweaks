@@ -320,10 +320,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->isLevelComplete = true;
 		PlayLayer::levelComplete();
 	}
-	void setupHasCompleted() {
-		m_fields->hIDeSet = hIDeString();
-		PlayLayer::setupHasCompleted();
-	}
 	void postUpdate(float dt) {
 		PlayLayer::postUpdate(dt);
 		if (!Utils::modEnabled() || m_fields->manager->isMinecraftify) { return; }
@@ -337,6 +333,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		CCLabelBMFont* debugTextNode = typeinfo_cast<CCLabelBMFont*>(m_fields->debugText);
 		if (debugTextNode == nullptr || !debugTextNode->isVisible()) { return; }
+
+		if (m_fields->hIDeSet.empty()) { m_fields->hIDeSet = hIDeString(); }
 
 		if (Utils::getBool("blendingDebugText") && !m_fields->appliedBlending) {
 			debugTextNode->setBlendFunc({GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA}); // Manager::glBlendFuncs[5], Manager::glBlendFuncs[7]

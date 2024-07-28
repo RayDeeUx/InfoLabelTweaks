@@ -2,6 +2,8 @@
 #include "Manager.hpp"
 #include "Utils.hpp"
 
+using namespace geode::prelude;
+
 class $modify(MyCCScheduler, CCScheduler) {
     void update(float dt) {
         CCScheduler::update(dt);

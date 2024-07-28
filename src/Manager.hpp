@@ -3,8 +3,6 @@
 // Manager.hpp structure by acaruso
 // reused with explicit permission and strong encouragement
 
-using namespace geode::prelude;
-
 class Manager {
 
 protected:

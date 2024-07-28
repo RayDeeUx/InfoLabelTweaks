@@ -15,7 +15,6 @@ add_library(${PROJECT_NAME} SHARED
         src/FMODAudioEngine.cpp
         src/MenuLayer.cpp
         src/CCKeyboardDispatcher.cpp
-        src/FMODAudioEngine.cpp
         # Add any extra C++ source files here
 )
 

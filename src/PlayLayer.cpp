@@ -282,12 +282,11 @@ class $modify(MyPlayLayer, PlayLayer) {
 	CCNode* findDebugTextNode() {
 		if (!PlayLayer::get()) { return nullptr; }
 		if (m_infoLabel != nullptr && isInfoLabel(m_infoLabel->getString())) { return m_infoLabel; }
-		// remove node IDs dependency because subwoofer lullaby keeps crashing for whatever reason on PlayLayer::setupHasCompleted
-		/*
-		if (CCLabelBMFont* infoLabelCandidate = typeinfo_cast<CCLabelBMFont*>(getChildByID("info-label"))) {
-			if (isInfoLabel(infoLabelCandidate->getString())) { return infoLabelCandidate; }
+		if (Utils::isModLoaded("geode.node-ids")) {
+			if (CCLabelBMFont* infoLabelCandidate = typeinfo_cast<CCLabelBMFont*>(getChildByID("info-label"))) {
+				if (isInfoLabel(infoLabelCandidate->getString())) { return infoLabelCandidate; }
+			}
 		}
-		*/
 		CCArrayExt<CCNode*> plArray = CCArrayExt<CCNode*>(getChildren());
 		for (int i = plArray.size(); i-- > 0; ) {
 			if (CCLabelBMFont* nodeCandidate = typeinfo_cast<CCLabelBMFont*>(plArray[i])) {

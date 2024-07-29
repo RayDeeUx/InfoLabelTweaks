@@ -13,3 +13,4 @@
   - "Show Most Recent Song/Effect" is now on macOS.
   - Fixed a few bugs left over from ErysEdits.
 - Big thanks to CatXus, Aktimoose, ninXout, and hiimjustin000 for helping out with testing!
+- Big thanks to dank_meme for helping me fix a crash!

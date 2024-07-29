@@ -290,7 +290,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		CCArrayExt<CCNode*> plArray = CCArrayExt<CCNode*>(getChildren());
 		for (int i = plArray.size() - 1; i >= 0; i--) {
 			// NEW [good]: int i = plArray.size() - 1; i >= 0; i--
-			// ORIG [bad]: int i = plArray.size(); i-- > 0; 
+			// ORIG [bad]: int i = plArray.size(); i-- > 0;
 			if (CCLabelBMFont* nodeCandidate = typeinfo_cast<CCLabelBMFont*>(plArray[i])) {
 				if (isInfoLabel(nodeCandidate->getString())) { return nodeCandidate; }
 			}

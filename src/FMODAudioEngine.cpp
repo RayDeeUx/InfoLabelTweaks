@@ -61,11 +61,12 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 		}
 		return result;
 	}
-	void preloadEffect(gd::string path) {
-		FMODAudioEngine::sharedEngine()->preloadEffect(path);
-		if (!Utils::modEnabled() || !PlayLayer::get()) { return; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
-		if (std::find(m_fields->vanillaSFX.begin(), m_fields->vanillaSFX.end(), path) != m_fields->vanillaSFX.end()) { return; } // ignore vanilla sfx, the debug menu should only record sfx from the level itself
+	FMODSound& preloadEffect(gd::string path) {
+		FMODSound& result = FMODAudioEngine::sharedEngine()->preloadEffect(path);
+		if (!Utils::modEnabled() || !PlayLayer::get()) { return result; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
+		if (std::find(m_fields->vanillaSFX.begin(), m_fields->vanillaSFX.end(), path) != m_fields->vanillaSFX.end()) { return result; } // ignore vanilla sfx, the debug menu should only record sfx from the level itself
 		m_fields->manager->lastPlayedEffect = parsePath(path);
+		return result;
 	}
 	void loadMusic(gd::string path, float speed, float p2, float volume, bool shouldLoop, int p5, int p6) {
 		FMODAudioEngine::sharedEngine()->loadMusic(path, speed, p2, volume, shouldLoop, p5, p6);

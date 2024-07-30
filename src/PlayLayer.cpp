@@ -326,9 +326,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		PlayLayer::levelComplete();
 	}
 	void postUpdate(float dt) {
-		log::info("before calling orig");
 		PlayLayer::postUpdate(dt);
-		log::info("after calling orig");
 		if (!Utils::modEnabled() || m_fields->manager->isMinecraftify) { return; }
 
 		m_fields->debugText = findDebugTextNode();

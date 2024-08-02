@@ -1,4 +1,6 @@
 ## InfoLabelTweaks Changelog
+## 1.0.1
+- Fix a crash from pressing keys Cocos2d wouldn't recognize. Big thanks to Minemaker and hiimjustin000 for finding this crash!
 ## 1.0.0
 - Initial release (on GitHub). Changes since being split off from ErysEdits:
   - Added size scaling options.

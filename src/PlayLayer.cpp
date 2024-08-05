@@ -377,7 +377,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			} else if (fontID == -1) {
 				debugTextNode->setFntFile("bigFont.fnt");
 			} else if (fontID != 0) {
-				debugTextNode->setFntFile(fmt::format("gjFont{}.fnt", fontID).c_str());
+				debugTextNode->setFntFile(fmt::format("gjFont{:02d}.fnt", fontID).c_str());
 			}
 			m_fields->fontSet = true;
 		}

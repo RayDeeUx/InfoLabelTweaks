@@ -1,4 +1,6 @@
 ## InfoLabelTweaks Changelog
+## 1.0.2
+- Fix a crash from selecting Fonts 1 through 9 (even though they're all objectively ugly). Thanks again, hiimjustin000!
 ## 1.0.1
 - Fix a crash from pressing keys Cocos2d wouldn't recognize. Big thanks to Minemaker and hiimjustin000 for finding this crash!
 ## 1.0.0

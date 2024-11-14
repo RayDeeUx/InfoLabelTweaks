@@ -1,4 +1,6 @@
 ## InfoLabelTweaks Changelog
+## v1.0.3
+- Port to 2.2074.
 ## v1.0.2
 - Fix a crash from selecting Fonts 1 through 9 (even though they're all objectively ugly). Thanks again, hiimjustin000!
 ## v1.0.1

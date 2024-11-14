@@ -16,7 +16,7 @@ class $modify(MyMenuLayer, MenuLayer) {
 
 		auto loadedMods = 0;
 		auto disabledMods = 0;
-		auto problems = geode->getProblems().size();
+		auto problems = geode->getAllProblems().size();
 
 		std::ranges::for_each(mods, [&](const Mod *mod) {
 			if (geode->isModLoaded(mod->getID())) {

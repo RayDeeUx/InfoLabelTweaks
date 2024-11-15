@@ -68,8 +68,8 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 		m_fields->manager->lastPlayedEffect = parsePath(path);
 		return result;
 	}
-	void loadMusic(gd::string path, float speed, float p2, float volume, bool shouldLoop, int p5, int p6) {
-		FMODAudioEngine::sharedEngine()->loadMusic(path, speed, p2, volume, shouldLoop, p5, p6);
+	void playMusic(gd::string path, bool shouldLoop, float fadeInTime, int channel) {
+		FMODAudioEngine::sharedEngine()->playMusic(path, shouldLoop, fadeInTime, channel);
 		if (!Utils::modEnabled() || !PlayLayer::get()) { return; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
 		m_fields->manager->lastPlayedSong = parsePath(path);
 	}

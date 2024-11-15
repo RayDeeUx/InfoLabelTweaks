@@ -276,8 +276,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	static bool isInfoLabel(const std::string &candidateString) {
 		return (xContainedInY("-- Audio --", candidateString, false) &&
-		       xContainedInY("-- Perf --", candidateString, false) &&
-		       xContainedInY("-- Area --", candidateString, false));
+			   xContainedInY("-- Perf --", candidateString, false) &&
+			   xContainedInY("-- Area --", candidateString, false));
 	}
 	CCNode* findDebugTextNode() {
 		if (!PlayLayer::get()) { return nullptr; }

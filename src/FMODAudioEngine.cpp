@@ -70,7 +70,7 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 	}
 	#ifndef GEODE_IS_ARM_MAC
 	FMOD::Sound* preloadMusic(gd::string path, bool p1, int p2) {
-		FMODSound& result = FMODAudioEngine::sharedEngine()->preloadMusic(path, p1, p2);
+		FMOD::Sound* result = FMODAudioEngine::sharedEngine()->preloadMusic(path, p1, p2);
 		// FMODAudioEngine::sharedEngine()->loadMusic(path, speed, p2, volume, shouldLoop, p5, p6);
 		if (!Utils::modEnabled() || !PlayLayer::get()) { return result; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
 		m_fields->manager->lastPlayedSong = parsePath(path);

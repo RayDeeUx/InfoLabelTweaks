@@ -69,10 +69,12 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 		return result;
 	}
 	#ifndef GEODE_IS_ARM_MAC
-	void loadMusic(gd::string path, float speed, float p2, float volume, bool shouldLoop, int p5, int p6) {
-		FMODAudioEngine::sharedEngine()->loadMusic(path, speed, p2, volume, shouldLoop, p5, p6);
-		if (!Utils::modEnabled() || !PlayLayer::get()) { return; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
+	FMOD::Sound* preloadMusic(gd::string path, bool p1, int p2) {
+		FMODSound& result = FMODAudioEngine::sharedEngine()->preloadMusic(path, p1, p2);
+		// FMODAudioEngine::sharedEngine()->loadMusic(path, speed, p2, volume, shouldLoop, p5, p6);
+		if (!Utils::modEnabled() || !PlayLayer::get()) { return result; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
 		m_fields->manager->lastPlayedSong = parsePath(path);
+		return result;
 	}
 	#endif
 };

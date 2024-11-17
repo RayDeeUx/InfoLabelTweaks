@@ -68,7 +68,6 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 		m_fields->manager->lastPlayedEffect = parsePath(path);
 		return result;
 	}
-	#ifndef GEODE_IS_ARM_MAC
 	FMOD::Sound* preloadMusic(gd::string path, bool p1, int p2) {
 		FMOD::Sound* result = FMODAudioEngine::sharedEngine()->preloadMusic(path, p1, p2);
 		// FMODAudioEngine::sharedEngine()->loadMusic(path, speed, p2, volume, shouldLoop, p5, p6);
@@ -76,5 +75,4 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 		m_fields->manager->lastPlayedSong = parsePath(path);
 		return result;
 	}
-	#endif
 };

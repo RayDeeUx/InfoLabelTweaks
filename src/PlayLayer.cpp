@@ -71,7 +71,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::string textureQuality = "Unknown";
 	};
 	std::string getCurrentTime() {
-		if (!Utils::getBool("enabled") || !Utils::getBool("miscInfo") || !Utils::getBool("dateAndTime")) return "";
+		if (!Utils::modEnabled() || !Utils::getBool("miscInfo") || !Utils::getBool("dateAndTime")) return "";
 		std::time_t tinnyTim = std::time(nullptr);
 		std::tm* now = std::localtime(&tinnyTim);
 		std::string month = Manager::getSharedInstance()->months[now->tm_mon + 1];

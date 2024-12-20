@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <ctime>
 
 using namespace geode::prelude;
 
@@ -67,9 +68,38 @@ class $modify(MyPlayLayer, PlayLayer) {
 			"N/A", "Expunged",
 			"Locked", "hIDden"
 		};
+		std::string textureQuality = "Unknown";
 	};
+	std::string getCurrentTime() {
+		if (!Utils::getBool("enabled") || !Utils::getBool("miscInfo") || !Utils::getBool("dateAndTime")) return "";
+		std::time_t tinnyTim = std::time(nullptr);
+		std::tm* now = std::localtime(&tinnyTim);
+		std::string month = Manager::getSharedInstance()->months[now->tm_mon + 1];
+		int hour = now->tm_hour;
+		std::string ampm = "";
+		if (Utils::getBool("twelveHour")) {
+			if (hour > 12) {
+				hour = hour % 12;
+				ampm = " PM";
+			} else {
+				if (hour == 0) hour = 12;
+				ampm = " AM";
+			}
+		}
+		if (Utils::getBool("shortMonth") && month != "May") {
+			month = fmt::format("{}.", month.substr(0, 3));
+		}
+		std::string dateMonth = Utils::getBool("dayFirst") ?
+			fmt::format("{} {}", now->tm_mday, month) : fmt::format("{} {}", month, now->tm_mday);
+		std::string seconds = Utils::getBool("includeSeconds") ? fmt::format(":{:02}", now->tm_sec % 60) : "";
+		std::string separator = Utils::getBool("splitDateAndTime") ? "\nTime: " : " ";
+		return fmt::format("\nDate: {}, {}{}{:02}:{:02}{}{} {}",
+			dateMonth, now->tm_year + 1900, separator,
+			hour, now->tm_min, seconds, ampm, now->tm_zone
+		);
+	}
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
-		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) { return ""; }
+		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) return "";
 		std::string status = "Unknown";
 		std::string playerNum = "";
 		std::string fullVelocity = "";
@@ -153,7 +183,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 			playerPosition = playerPosition.append(fmt::format("({}, {})", xPos, yPos));
 		}
 
-
 		if (Utils::getBool("velocityPlayer")) {
 			int veloAccuracy = Utils::getBool("accuratePlayer") ? 2 : 1;
 			float xVelo = thePlayer->m_isPlatformer ? thePlayer->m_platformerXVelocity : thePlayer->m_playerSpeed;
@@ -185,7 +214,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return fullPlayerStatus;
 	}
 	std::string buildLevelTraitsString() {
-		if (!Utils::modEnabled() || !Utils::getBool("levelTraits")) { return ""; }
+		if (!Utils::modEnabled() || !Utils::getBool("levelTraits")) return "";
 		std::string level = "Unknown";
 		if (m_level->isPlatformer()) {
 			level = "Platformer";
@@ -214,7 +243,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return level;
 	}
 	std::string buildCameraPropertiesString() {
-		if (!Utils::modEnabled() || !Utils::getBool("cameraProperties")) { return ""; }
+		if (!Utils::modEnabled() || !Utils::getBool("cameraProperties")) return "";
 		// NEVER STORE A VARIABLE OF TYPE GJGameState, IT WILL FAIL ON ANDROID
 		bool isCompactCam = Utils::getBool("compactCamera");
 		bool conditionalValues = Utils::getBool("conditionalValues");
@@ -255,7 +284,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		);
 	}
 	static std::string buildGeodeLoaderString(Manager* manager) {
-		if (!Utils::modEnabled() || !Utils::getBool("geodeInfo")) { return ""; }
+		if (!Utils::modEnabled() || !Utils::getBool("geodeInfo")) return "";
 		if (Utils::getBool("compactGeode")) {
 			return fmt::format(
 				"-- Geode v{} --\nGD v{} on {}\nMods: {} + {} = {} ({})",
@@ -269,8 +298,13 @@ class $modify(MyPlayLayer, PlayLayer) {
 			manager->disabledMods, manager->installedMods, manager->problems, (manager->problems == 1) ? "" : "s"
 		);
 	}
+	std::string buildMiscInfoString() {
+		if (!Utils::modEnabled() || !Utils::getBool("miscInfo")) return "";
+		std::string textureQuality = Utils::getBool("textureQuality") ? fmt::format("\nQuality: {}", m_fields->textureQuality) : "";
+		return fmt::format("-- Misc --{}{}", textureQuality, getCurrentTime());
+	}
 	static bool xContainedInY(std::string substring, std::string_view string, bool withColon = true) {
-		if (!Utils::modEnabled() || string.empty()) { return false; }
+		if (!Utils::modEnabled() || string.empty()) return false;
 		if (withColon) return (string.find(fmt::format("{}: ", substring)) != std::string::npos);
 		return (string.find(substring) != std::string::npos);
 	}
@@ -280,11 +314,11 @@ class $modify(MyPlayLayer, PlayLayer) {
 			   xContainedInY("-- Area --", candidateString, false));
 	}
 	CCNode* findDebugTextNode() {
-		if (!PlayLayer::get()) { return nullptr; }
-		if (m_infoLabel != nullptr && isInfoLabel(m_infoLabel->getString())) { return m_infoLabel; }
+		if (!PlayLayer::get()) return nullptr;
+		if (m_infoLabel != nullptr && isInfoLabel(m_infoLabel->getString())) return m_infoLabel;
 		if (Utils::isModLoaded("geode.node-ids")) {
 			if (CCLabelBMFont* infoLabelCandidate = typeinfo_cast<CCLabelBMFont*>(getChildByID("info-label"))) {
-				if (isInfoLabel(infoLabelCandidate->getString())) { return infoLabelCandidate; }
+				if (isInfoLabel(infoLabelCandidate->getString())) return infoLabelCandidate;
 			}
 		}
 		CCArrayExt<CCNode*> plArray = CCArrayExt<CCNode*>(getChildren());
@@ -292,7 +326,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			// NEW [good]: int i = plArray.size() - 1; i >= 0; i--
 			// ORIG [bad]: int i = plArray.size(); i-- > 0;
 			if (CCLabelBMFont* nodeCandidate = typeinfo_cast<CCLabelBMFont*>(plArray[i])) {
-				if (isInfoLabel(nodeCandidate->getString())) { return nodeCandidate; }
+				if (isInfoLabel(nodeCandidate->getString())) return nodeCandidate;
 			}
 		}
 		return nullptr;
@@ -319,25 +353,30 @@ class $modify(MyPlayLayer, PlayLayer) {
 		m_fields->manager->lastPlayedSong = "N/A";
 		m_fields->manager->lastPlayedEffect = "N/A";
 		m_fields->manager->lastKeyName = "N/A";
+		m_fields->textureQuality = "Unknown";
 		PlayLayer::onQuit();
 	}
 	void levelComplete() {
 		m_fields->isLevelComplete = true;
 		PlayLayer::levelComplete();
 	}
+	void setupHasCompleted() {
+		PlayLayer::setupHasCompleted();
+		m_fields->textureQuality = Manager::getSharedInstance()->qualities[static_cast<int>(CCDirector::get()->getLoadedTextureQuality())];
+	}
 	void postUpdate(float dt) {
 		PlayLayer::postUpdate(dt);
-		if (!Utils::modEnabled() || m_fields->manager->isMinecraftify) { return; }
+		if (!Utils::modEnabled() || m_fields->manager->isMinecraftify) return;
 
 		m_fields->debugText = findDebugTextNode();
-		if (m_fields->debugText == nullptr || !m_fields->debugText->isVisible()) { return; }
+		if (m_fields->debugText == nullptr || !m_fields->debugText->isVisible()) return;
 
 		m_fields->isDual = m_gameState.m_isDualMode;
 		bool forcesExist = m_player1->m_affectedByForces;
 		if (!forcesExist && m_fields->isDual && m_player2) { forcesExist = m_player2->m_affectedByForces; }
 
 		CCLabelBMFont* debugTextNode = typeinfo_cast<CCLabelBMFont*>(m_fields->debugText);
-		if (debugTextNode == nullptr || !debugTextNode->isVisible()) { return; }
+		if (debugTextNode == nullptr || !debugTextNode->isVisible()) return;
 
 		if (m_fields->hIDeSet.empty()) { m_fields->hIDeSet = hIDeString(); }
 
@@ -550,7 +589,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		}
 		if (Utils::getBool("fps") || Utils::getBool("lastKey")) {
 			std::string fps = Utils::getBool("fps") ?
-				fmt::format("FPS: {}", m_fields->manager->fps) : "";
+				fmt::format("FPS: {:.0f}", CCDirector::get()->m_fFrameRate) : "";
 			std::string lastKey = Utils::getBool("lastKey") ?
 				fmt::format("Last Key: {}", m_fields->manager->lastKeyName) : "";
 			std::string merger = "";
@@ -566,6 +605,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 		}
 		if (Utils::getBool("geodeInfo")) {
 			debugTextContents = debugTextContents.append(fmt::format("{}\n", buildGeodeLoaderString(m_fields->manager)));
+		}
+		if (Utils::getBool("miscInfo")) {
+			debugTextContents = debugTextContents.append(fmt::format("{}\n", buildMiscInfoString()));
 		}
 		std::string customFooter = Utils::getString("customFooter");
 		if (!customFooter.empty()) {

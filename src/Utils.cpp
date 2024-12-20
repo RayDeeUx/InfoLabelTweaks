@@ -1,8 +1,4 @@
-
-#include <regex>
 #include "Utils.hpp"
-
-using namespace geode::cocos;
 
 namespace Utils {
 	template<class T> T getSetting(std::string setting) { return Mod::get()->getSettingValue<T>(setting); }

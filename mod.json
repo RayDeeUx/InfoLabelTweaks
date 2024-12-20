@@ -1,5 +1,5 @@
 {
-	"geode": "4.0.0-beta.1",
+	"geode": "4.0.1",
 	"gd": {
 		"win": "2.2074",
 		"android": "2.2074",
@@ -269,6 +269,54 @@
 		"geodeInfo": {
 			"name": "Geode Mod Loader Info",
 			"description": "Adds an additional section of info related to your Geode setup named \"Geode\".",
+			"type": "bool",
+			"default": false
+		},
+		"miscInfo": {
+			"name": "Misc. Info",
+			"description": "Adds an additional section of info that didn't belong anywhere else named \"Misc\".",
+			"type": "bool",
+			"default": true
+		},
+		"textureQuality": {
+			"name": "Texture Quality",
+			"description": "Includes Texture Quality info in the \"Misc\" section.",
+			"type": "bool",
+			"default": true
+		},
+		"dateAndTime": {
+			"name": "Date and Time",
+			"description": "Includes current date and time in the \"Misc\" section.",
+			"type": "bool",
+			"default": true
+		},
+		"dayFirst": {
+			"name": "Day First",
+			"description": "Displays the day before the month.",
+			"type": "bool",
+			"default": true
+		},
+		"shortMonth": {
+			"name": "Abbreviated Month Name",
+			"description": "Truncates the month name to its first three characters.\n\n(Example: <cl>December</c> -> <cl>Dec.</c>)",
+			"type": "bool",
+			"default": true
+		},
+		"splitDateAndTime": {
+			"name": "Separate Date from Time",
+			"description": "Displays the date and time in separate lines.",
+			"type": "bool",
+			"default": true
+		},
+		"twelveHour": {
+			"name": "12 Hour Clock",
+			"description": "Uses 12 hour clock instead of the 24 hour clock. Automatically includes AM/PM info.",
+			"type": "bool",
+			"default": true
+		},
+		"includeSeconds": {
+			"name": "Include Seconds in Clock",
+			"description": "Includes seconds in the clock.",
 			"type": "bool",
 			"default": false
 		},

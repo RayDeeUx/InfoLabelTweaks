@@ -1,4 +1,9 @@
 ## InfoLabelTweaks Changelog
+## v1.0.4
+- Change how FPS is calculated.
+- Add `Misc` category. Contains:
+  - Date and time
+  - Texture quality info
 ## v1.0.3
 - Port to 2.2074.
 ## v1.0.2

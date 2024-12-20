@@ -28,7 +28,28 @@ public:
 	
 	bool isMinecraftify = false;
 
-	int fps = 0;
+	std::array<std::string, 13> months = {
+		"Unknown",
+		"January",
+		"February",
+		"March",
+		"April",
+		"May",
+		"June",
+		"July",
+		"August",
+		"September",
+		"October",
+		"November",
+		"December"
+	};
+
+	std::array<std::string, 4> qualities = {
+		"Unknown",
+		"Low",
+		"Medium (HD)",
+		"High (UHD)"
+	};
 
 	bool hasCalledAlready = false;
 	

@@ -4,6 +4,7 @@
 - Add `Misc` category. Contains:
   - Date and time
   - Texture quality info
+  - Window size info (Fullscreen, Aspect Ratio, Estimated Aspect Ratio)
 ## v1.0.3
 - Port to 2.2074.
 ## v1.0.2

@@ -69,6 +69,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 			"Locked", "hIDden"
 		};
 		std::string textureQuality = "Unknown";
+		float winHeightPixels = CCDirector::get()->getWinSizeInPixels().height;
+		float winWidthPixels = CCDirector::get()->getWinSizeInPixels().width;
+		bool isFullscreen = GameManager::get()->getGameVariable("0025");
 	};
 	std::string getCurrentTime() {
 		if (!Utils::modEnabled() || !Utils::getBool("miscInfo") || !Utils::getBool("dateAndTime")) return "";
@@ -97,6 +100,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 			dateMonth, now->tm_year + 1900, separator,
 			hour, now->tm_min, seconds, ampm, now->tm_zone
 		);
+	}
+	std::string getWindowInfo() {
+		if (!Utils::modEnabled() || !Utils::getBool("miscInfo")) return "";
+		return fmt::format("Window: {}x{} ({:.2f})\nFullscreen: {}", m_fields->winWidthPixels, m_fields->winHeightPixels, m_fields->winWidthPixels / m_fields->winHeightPixels, m_fields->isFullscreen ? "OFF" : "ON");
 	}
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
 		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) return "";
@@ -301,7 +308,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	std::string buildMiscInfoString() {
 		if (!Utils::modEnabled() || !Utils::getBool("miscInfo")) return "";
 		std::string textureQuality = Utils::getBool("textureQuality") ? fmt::format("\nQuality: {}", m_fields->textureQuality) : "";
-		return fmt::format("-- Misc --{}{}", textureQuality, getCurrentTime());
+		return fmt::format("-- Misc --\n{}{}{}", getWindowInfo(), textureQuality, getCurrentTime());
 	}
 	static bool xContainedInY(std::string substring, std::string_view string, bool withColon = true) {
 		if (!Utils::modEnabled() || string.empty()) return false;
@@ -369,21 +376,21 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (!Utils::modEnabled() || m_fields->manager->isMinecraftify) return;
 
 		m_fields->debugText = findDebugTextNode();
-		if (m_fields->debugText == nullptr || !m_fields->debugText->isVisible()) return;
+		if (!m_fields->debugText || !m_fields->debugText->isVisible()) return;
+
+		CCLabelBMFont* debugTextNode = typeinfo_cast<CCLabelBMFont*>(m_fields->debugText);
+		if (!debugTextNode || !debugTextNode->isVisible()) return;
 
 		m_fields->isDual = m_gameState.m_isDualMode;
 		bool forcesExist = m_player1->m_affectedByForces;
-		if (!forcesExist && m_fields->isDual && m_player2) { forcesExist = m_player2->m_affectedByForces; }
-
-		CCLabelBMFont* debugTextNode = typeinfo_cast<CCLabelBMFont*>(m_fields->debugText);
-		if (debugTextNode == nullptr || !debugTextNode->isVisible()) return;
+		if (!forcesExist && m_fields->isDual && m_player2) forcesExist = m_player2->m_affectedByForces;
 
 		if (m_fields->hIDeSet.empty()) { m_fields->hIDeSet = hIDeString(); }
 
 		if (Utils::getBool("blendingDebugText") && !m_fields->appliedBlending) {
 			debugTextNode->setBlendFunc({GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA}); // Manager::glBlendFuncs[5], Manager::glBlendFuncs[7]
 			m_fields->appliedBlending = true;
-		} else { m_fields->appliedBlending = false; }
+		} else m_fields->appliedBlending = false;
 		if (!m_fields->appliedChromaOrDefaultColor) {
 			if (!Utils::getBool("chromaDebugText")) {
 				debugTextNode->setColor({255, 255, 255}); // ensure that node color is white in case someone turns off chroma mode mid-session

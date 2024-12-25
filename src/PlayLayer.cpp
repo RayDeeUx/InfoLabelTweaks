@@ -101,13 +101,13 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::string dateMonth = Utils::getBool("dayFirst") ?
 			fmt::format("{} {}", now->tm_mday, month) : fmt::format("{} {}", month, now->tm_mday);
 		std::string seconds = Utils::getBool("includeSeconds") ? fmt::format(":{:02}", now->tm_sec % 60) : "";
-		std::string separator = Utils::getBool("splitDateAndTime") ? "\n" : " ";
+		std::string separator = Utils::getBool("splitDateAndTime") ? "\nTime: " : " ";
 		#ifndef GEODE_IS_WINDOWS
 		std::string timeZone = now->tm_zone;
 		#else
 		std::string timeZone = std::chrono::current_zone()->get_info(std::chrono::system_clock::now()).abbrev;
 		#endif
-		return fmt::format("{}{}, {}{}{:02}:{:02}{}{} {}",
+		return fmt::format("\nDate: {}{}, {}{}{:02}:{:02}{}{} {}",
 			dayOfWeek, dateMonth, now->tm_year + 1900, separator,
 			hour, now->tm_min, seconds, ampm, timeZone
 		);

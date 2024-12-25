@@ -30,18 +30,13 @@ public:
 
 	std::array<std::string, 13> months = {
 		"Unknown",
-		"January",
-		"February",
-		"March",
-		"April",
-		"May",
-		"June",
-		"July",
-		"August",
-		"September",
-		"October",
-		"November",
-		"December"
+		"January", "February", "March", "April",
+		"May", "June", "July", "August",
+		"September", "October", "November", "December"
+	};
+
+	std::array<std::string, 7> daysOfWeek = {
+		"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
 	};
 
 	std::array<std::string, 4> qualities = {

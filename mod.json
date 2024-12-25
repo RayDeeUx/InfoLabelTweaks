@@ -290,6 +290,17 @@
 			"type": "bool",
 			"default": true
 		},
+		"dayOfWeek": {
+			"name": "Day of Week (Sun, Mon, Etc)",
+			"type": "bool",
+			"default": true
+		},
+		"shortDayOfWeek": {
+			"name": "Abbreviated Day of Week",
+			"description": "Truncates the day of the week to its first three characters.\n\n(Example: <cl>Sunday</c> -> <cl>Sun</c>)",
+			"type": "bool",
+			"default": true
+		},
 		"dayFirst": {
 			"name": "Day First",
 			"description": "Displays the day before the month.",

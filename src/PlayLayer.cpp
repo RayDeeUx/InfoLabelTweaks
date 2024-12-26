@@ -114,7 +114,12 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	std::string getWindowInfo() {
 		if (!Utils::modEnabled() || !Utils::getBool("miscInfo")) return "";
-		return fmt::format("Window: {}x{} ({:.2f})\nFullscreen: {}", m_fields->winWidthPixels, m_fields->winHeightPixels, m_fields->winWidthPixels / m_fields->winHeightPixels, m_fields->isFullscreen ? "OFF" : "ON");
+		const int gcd = Utils::gcd(m_fields->winWidthPixels, m_fields->winHeightPixels);
+		return fmt::format("Window: {}x{} ({}:{})\nFullscreen: {}",
+			m_fields->winWidthPixels, m_fields->winHeightPixels,
+			m_fields->winWidthPixels / gcd, m_fields->winHeightPixels / gcd,
+			m_fields->isFullscreen ? "OFF" : "ON"
+		);
 	}
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
 		if (!Utils::modEnabled() || !Utils::getBool("playerStatus")) return "";

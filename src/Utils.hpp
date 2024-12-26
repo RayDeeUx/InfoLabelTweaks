@@ -15,4 +15,6 @@ namespace Utils {
 	bool isModLoaded(std::string modID);
 	Mod* getMod(std::string modID);
 	std::string getModVersion(Mod* mod);
+
+	static int gcd(int a, int b);
 }

@@ -22,4 +22,6 @@ namespace Utils {
 	Mod* getMod(std::string modID) { return Loader::get()->getLoadedMod(modID); }
 
 	std::string getModVersion(Mod* mod) { return mod->getVersion().toNonVString(); }
+
+	static int gcd(int a, int b) { return (b == 0) ? a : gcd(b, a % b); }
 }

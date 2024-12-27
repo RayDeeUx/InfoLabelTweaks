@@ -105,8 +105,16 @@ class $modify(MyPlayLayer, PlayLayer) {
 		#ifndef GEODE_IS_WINDOWS
 		std::string timeZone = now->tm_zone;
 		#else
-		std::tm* gmt = std::gmtime(&tinnyTim);
-		std::string timeZone = fmt::format("UTC{:.2f}", static_cast<double>(difftime(mktime(now), mktime(gmt))) / 60 / 60);
+		// std::tm* gmt = std::gmtime(&tinnyTim);
+		// std::string timeZone = fmt::format("UTC{:.2f}", static_cast<double>(difftime(mktime(now), mktime(gmt))) / 60 / 60);
+		// "i love bill gates!", said no one ever, after discovering that timezone abbreviations were paywalled behind arbitrary bullshit
+		char buffer[80];
+		strftime(buffer, 80, "%EZ", now);
+
+		std::string timeZone = buffer;
+		if (timeZone == "Coordinated Universal Time") timeZone = "UTC";
+		std::regex capitalsOnly = std::regex("[^A-Z]");
+		timeZone = std::regex_replace(timeZone, capitalsOnly, "");
 		#endif
 		return fmt::format("\nDate: {}{}, {}{}{:02}:{:02}{}{} {}",
 			dayOfWeek, dateMonth, now->tm_year + 1900, separator,

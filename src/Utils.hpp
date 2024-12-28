@@ -16,5 +16,5 @@ namespace Utils {
 	Mod* getMod(std::string modID);
 	std::string getModVersion(Mod* mod);
 
-	static int gcd(int a, int b);
+	int gcd(int a, int b);
 }

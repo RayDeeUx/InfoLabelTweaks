@@ -9,6 +9,8 @@ project(InfoLabelTweaks VERSION 1.0.0)
 add_library(${PROJECT_NAME} SHARED
         src/Manager.cpp
         src/Utils.cpp
+        src/Manager.hpp
+        src/Utils.hpp
 
         src/PlayLayer.cpp
         src/FMODAudioEngine.cpp

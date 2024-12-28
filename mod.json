@@ -331,6 +331,13 @@
 			"type": "bool",
 			"default": false
 		},
+		"useUTC": {
+			"name": "Show UTC Offset Instead of Timezone Abbv.",
+			"description": "<cl>Adapted from original code by Cvolton.</c>\nReplaces your current timezone abbreviation with a (rough) estimate of your UTC offset.\n\n<cy>This setting is not available on Windows; Windows users are only shown their UTC offset.</c>",
+			"type": "bool",
+			"default": true,
+			"platforms": ["mac", "android32", "android64"]
+		},
 		"compactAudio": {
 			"name": "Compact \"Audio\" Section",
 			"description": "Condenses Song and SFX counts from the \"Audio\" section into one line.",

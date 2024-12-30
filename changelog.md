@@ -3,6 +3,7 @@
 - Change how FPS is calculated.
 - Add `Misc` category. Contains:
   - Date and time
+  - Game uptime
   - Texture quality info
   - Window size info (Fullscreen, Aspect Ratio)
 ## v1.0.3

@@ -338,6 +338,12 @@
 			"default": true,
 			"platforms": ["mac", "android32", "android64"]
 		},
+		"uptime": {
+			"name": "Include Uptime",
+			"description": "Display how long your game has been open.",
+			"type": "bool",
+			"default": false
+		},
 		"compactAudio": {
 			"name": "Compact \"Audio\" Section",
 			"description": "Condenses Song and SFX counts from the \"Audio\" section into one line.",

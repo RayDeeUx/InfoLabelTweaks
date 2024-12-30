@@ -10,6 +10,7 @@ class $modify(MyMenuLayer, MenuLayer) {
 		auto manager = Manager::getSharedInstance();
 		if (manager->hasCalledAlready) { return true; }
 		manager->hasCalledAlready = true;
+		manager->originalTimestamp = std::time(nullptr);
 
 		const auto geode = Loader::get();
 		auto mods = geode->getAllMods();

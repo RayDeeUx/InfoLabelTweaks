@@ -141,7 +141,6 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		std::string timeZone = Utils::getUTCOffset();
 		#endif
-		std::string uptime = Utils::getBool("uptime") ? fmt::format("\nUptime: {}", getUptime(tinnyTim)) : "";
 		return fmt::format("\nDate: {}{}, {}{}{:02}:{:02}{}{} {}",
 			dayOfWeek, dateMonth, now->tm_year + 1900, separator,
 			hour, now->tm_min, seconds, ampm, timeZone
@@ -164,8 +163,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 		std::string minutes = timeInfo.tm_min != 0 ? fmt::format(":{:02}", timeInfo.tm_min) : "";
 		return fmt::format("UTC{}{}{}", sign, hour, minutes);
 	}
-	std::string getUptime(std::time_t now) {
-		if (!Utils::modEnabled()) return "";
+	std::string getUptime(std::time_t now = std::time(nullptr)) {
+		if (!Utils::modEnabled() || !Utils::getBool("uptime")) return "";
 		long elapsed = difftime(now, Manager::getSharedInstance()->originalTimestamp);
 		long days = elapsed / SECONDS_PER_DAY;
 		elapsed -= days * SECONDS_PER_DAY;
@@ -180,7 +179,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		// std::string hoursString = fmt::format("{:02}:", hours); // for debugging in case hour count is way off
 		std::string minutesString = hours > 0 ? fmt::format("{:02}:", minutes) : fmt::format("{}:", minutes);
 		std::string secondsString = fmt::format("{:02}", seconds);
-		return fmt::format("{}{}{}{}", daysString, hoursString, minutesString, secondsString);
+		return fmt::format("\nUptime: {}{}{}{}", daysString, hoursString, minutesString, secondsString);
 	}
 	std::string getWindowInfo() {
 		if (!Utils::modEnabled() || !Utils::getBool("miscInfo")) return "";
@@ -394,7 +393,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	std::string buildMiscInfoString() {
 		if (!Utils::modEnabled() || !Utils::getBool("miscInfo")) return "";
 		std::string textureQuality = Utils::getBool("textureQuality") ? fmt::format("\nQuality: {}", m_fields->textureQuality) : "";
-		return fmt::format("-- Misc --\n{}{}{}", getWindowInfo(), textureQuality, getCurrentTime());
+		return fmt::format("-- Misc --\n{}{}{}{}", getWindowInfo(), textureQuality, getCurrentTime(), getUptime());
 	}
 	static bool xContainedInY(std::string substring, std::string_view string, bool withColon = true) {
 		if (!Utils::modEnabled() || string.empty()) return false;

@@ -254,7 +254,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		if (Utils::getBool("velocityPlayer")) {
 			int veloAccuracy = Utils::getBool("accuratePlayer") ? 2 : 1;
-			float xVelo = thePlayer->m_isPlatformer ? thePlayer->m_platformerXVelocity : thePlayer->m_platformerXVelocity;
+			float xVelo = thePlayer->m_isPlatformer ? thePlayer->m_platformerXVelocity : thePlayer->m_playerSpeed;
 			std::string xVeloStr = fmt::format("{:.{}f}", xVelo, veloAccuracy);
 			std::string yVeloStr = fmt::format("{:.{}f}", thePlayer->m_yVelocity, veloAccuracy);
 			fullVelocity = fmt::format(" / Velo: <{}, {}>", xVeloStr, yVeloStr);

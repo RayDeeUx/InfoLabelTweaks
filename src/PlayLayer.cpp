@@ -139,7 +139,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		(why can't MSVC just include a timezone abbv member variable like any other competent C implementation????)
 		*/
 
-		std::string timeZone = Utils::getUTCOffset();
+		std::string timeZone = getUTCOffset();
 		#endif
 		return fmt::format("\nDate: {}{}, {}{}{:02}:{:02}{}{} {}",
 			dayOfWeek, dateMonth, now->tm_year + 1900, separator,

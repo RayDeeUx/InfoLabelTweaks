@@ -419,10 +419,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 			float xVelo = thePlayer->m_isPlatformer ? thePlayer->m_platformerXVelocity : thePlayer->m_playerSpeed;
 			std::string xVeloStr = fmt::format("{:.{}f}", xVelo, veloAccuracy);
 			std::string yVeloStr = fmt::format("{:.{}f}", thePlayer->m_yVelocity, veloAccuracy);
-			fullVelocity = fmt::format(" / Velo: <{}, {}>", xVeloStr, yVeloStr);
-			if (!fields->isDual && !fields->rotationPlayer) {
-				fullVelocity = fmt::format("Velo: <{}, {}>", xVeloStr, yVeloStr);
-			}
+			if (!fields->isDual) fullVelocity = fmt::format("Velo: <{}, {}>", xVeloStr, yVeloStr);
+			else fullVelocity = fmt::format(" / Velo: <{}, {}>", xVeloStr, yVeloStr);
 		}
 
 		if (fields->rotationPlayer) {

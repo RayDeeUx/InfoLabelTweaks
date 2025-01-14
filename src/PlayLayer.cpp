@@ -213,13 +213,14 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	std::string getCurrentTime() {
 		if (!Utils::modEnabled()) return "";
+		const auto fields = m_fields.self();
 		Manager* manager = Manager::getSharedInstance();
 		std::time_t tinnyTim = std::time(nullptr);
 		std::tm* now = std::localtime(&tinnyTim);
 		std::string month = manager->months[now->tm_mon + 1];
 		int hour = now->tm_hour;
 		std::string ampm = "";
-		if (m_fields->twelveHour) {
+		if (fields->twelveHour) {
 			if (hour > 12) {
 				hour = hour % 12;
 				ampm = " PM";
@@ -228,17 +229,15 @@ class $modify(MyPlayLayer, PlayLayer) {
 				ampm = " AM";
 			}
 		}
-		if (m_fields->shortMonth && month != "May") {
-			month = fmt::format("{}", month.substr(0, 3));
-		}
-		std::string dow = m_fields->dayOfWeek ? manager->daysOfWeek[now->tm_wday] : ""; // dow = day of week
-		std::string dayOfWeek = !m_fields->dayOfWeek ? "" : fmt::format("{}, ", !m_fields->shortDayOfWeek ? dow : dow.substr(0, 3));
-		std::string dateMonth = m_fields->dayFirst ?
+		if (fields->shortMonth && month != "May") month = fmt::format("{}", month.substr(0, 3));
+		std::string dow = fields->dayOfWeek ? manager->daysOfWeek[now->tm_wday] : ""; // dow = day of week
+		std::string dayOfWeek = !fields->dayOfWeek ? "" : fmt::format("{}, ", !fields->shortDayOfWeek ? dow : dow.substr(0, 3));
+		std::string dateMonth = fields->dayFirst ?
 			fmt::format("{} {}", now->tm_mday, month) : fmt::format("{} {}", month, now->tm_mday);
-		std::string seconds = m_fields->includeSeconds ? fmt::format(":{:02}", now->tm_sec % 60) : "";
-		std::string separator = m_fields->splitDateAndTime ? "\nTime: " : " ";
+		std::string seconds = fields->includeSeconds ? fmt::format(":{:02}", now->tm_sec % 60) : "";
+		std::string separator = fields->splitDateAndTime ? "\nTime: " : " ";
 #ifndef GEODE_IS_WINDOWS
-		std::string timeZone = m_fields->useUTC ? getUTCOffset() : now->tm_zone;
+		std::string timeZone = fields->useUTC ? getUTCOffset() : now->tm_zone;
 #else
 		/*
 		original approach: display UTC offset
@@ -316,26 +315,28 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return fmt::format("\nUptime: {}{}{}{}", daysString, hoursString, minutesString, secondsString);
 	}
 	std::string getWindowInfo() {
-		if (!Utils::modEnabled() || !m_fields->miscInfo) return "";
-		const int gcd = Utils::gcd(m_fields->winWidthPixels, m_fields->winHeightPixels);
+		const auto fields = m_fields.self();
+		if (!Utils::modEnabled() || !fields->miscInfo) return "";
+		const int gcd = Utils::gcd(fields->winWidthPixels, fields->winHeightPixels);
 		return fmt::format("Window: {}x{} ({}:{})\nFullscreen: {}",
-			m_fields->winWidthPixels, m_fields->winHeightPixels,
-			m_fields->winWidthPixels / gcd, m_fields->winHeightPixels / gcd,
-			m_fields->isFullscreen ? "OFF" : "ON"
+			fields->winWidthPixels, fields->winHeightPixels,
+			fields->winWidthPixels / gcd, fields->winHeightPixels / gcd,
+			fields->isFullscreen ? "OFF" : "ON"
 		);
 	}
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
-		if (!Utils::modEnabled() || !m_fields->playerStatus) return "";
+		const auto fields = m_fields.self();
+		if (!Utils::modEnabled() || !fields->playerStatus) return "";
 		std::string status = "Unknown";
 		std::string playerNum = "";
 		std::string fullVelocity = "";
 		std::string fullRotation = "";
 
-		std::string playerPosition = m_fields->isDual ? "Pos: " : "";
-		if (m_fields->isDual) playerNum = fmt::format("[{}] ", thePlayer == this->m_player1 ? "P1" : "P2");
+		std::string playerPosition = fields->isDual ? "Pos: " : "";
+		if (fields->isDual) playerNum = fmt::format("[{}] ", thePlayer == this->m_player1 ? "P1" : "P2");
 
 		bool isPlat = thePlayer->m_isPlatformer;
-		bool compactDirs = m_fields->compactDirections;
+		bool compactDirs = fields->compactDirections;
 
 		if (thePlayer->m_isShip) {
 			if (!isPlat) status = "Ship";
@@ -349,7 +350,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (thePlayer->m_isDart) status = "Wave";
 			else { status = "Swing"; }
 			if (isPlat) {
-				if (m_fields->manager->gameVersion != "2.210") status = status.append("*");
+				if (fields->manager->gameVersion != "2.210") status = status.append("*");
 				else { status = status.append("?"); }
 			}
 		}
@@ -391,7 +392,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (thePlayer->m_isHidden) status = fmt::format("Hidden {}", status);
 
 		if (thePlayer != m_player2) {
-			if (m_fields->isDual) status = status.append(" [Dual]");
+			if (fields->isDual) status = status.append(" [Dual]");
 
 			if (m_isPracticeMode) status = status.append(" {Practice}");
 			else if (m_isTestMode) status = status.append(" {Testmode}");
@@ -399,8 +400,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		if (thePlayer->m_isDead) status = status.append(" (Dead)");
 
-		if (m_fields->isDual) {
-			int positionAccuracy = m_fields->accuratePosition ? 4 : 0;
+		if (fields->isDual) {
+			int positionAccuracy = fields->accuratePosition ? 4 : 0;
 
 			CCPoint playerPos = thePlayer->m_position;
 			std::string xPos = fmt::format("{:.{}f}", playerPos.x, positionAccuracy);
@@ -409,23 +410,23 @@ class $modify(MyPlayLayer, PlayLayer) {
 			playerPosition = playerPosition.append(fmt::format("({}, {})", xPos, yPos));
 		}
 
-		if (m_fields->velocityPlayer) {
-			int veloAccuracy = m_fields->accuratePlayer ? 2 : 1;
+		if (fields->velocityPlayer) {
+			int veloAccuracy = fields->accuratePlayer ? 2 : 1;
 			float xVelo = thePlayer->m_isPlatformer ? thePlayer->m_platformerXVelocity : thePlayer->m_playerSpeed;
 			std::string xVeloStr = fmt::format("{:.{}f}", xVelo, veloAccuracy);
 			std::string yVeloStr = fmt::format("{:.{}f}", thePlayer->m_yVelocity, veloAccuracy);
 			fullVelocity = fmt::format(" / Velo: <{}, {}>", xVeloStr, yVeloStr);
-			if (!m_fields->isDual && !m_fields->rotationPlayer) {
+			if (!fields->isDual && !fields->rotationPlayer) {
 				fullVelocity = fmt::format("Velo: <{}, {}>", xVeloStr, yVeloStr);
 			}
 		}
 
-		if (m_fields->rotationPlayer) {
-			int rotAccuracy = m_fields->accuratePlayer ? 2 : 0;
+		if (fields->rotationPlayer) {
+			int rotAccuracy = fields->accuratePlayer ? 2 : 0;
 			std::string rotationStr = fmt::format("{:.{}f}", thePlayer->getRotation(), rotAccuracy);
 			std::string rotationSpeedStr = fmt::format("{:.{}f}", thePlayer->m_rotationSpeed, rotAccuracy);
 			fullRotation = fmt::format(" / Rot: [{}, {}]", rotationStr, rotationSpeedStr);
-			if (!m_fields->isDual && !m_fields->velocityPlayer) {
+			if (!fields->isDual && !fields->velocityPlayer) {
 				fullRotation = fmt::format("Rot: [{}, {}]", rotationStr, rotationSpeedStr);
 			}
 		}
@@ -440,7 +441,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return fullPlayerStatus;
 	}
 	std::string buildLevelTraitsString() {
-		if (!Utils::modEnabled() || !m_fields->levelTraits) return "";
+		const auto fields = m_fields.self();
+		if (!Utils::modEnabled() || !fields->levelTraits) return "";
 		std::string level = "Unknown";
 		if (m_level->isPlatformer()) {
 			level = "Platformer";
@@ -464,15 +466,16 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		if (m_level->m_twoPlayerMode) level = level.append(" {2P}");
 
-		if (m_fields->isLevelComplete) level = level.append(" <Completed>");
+		if (fields->isLevelComplete) level = level.append(" <Completed>");
 
 		return level;
 	}
 	std::string buildCameraPropertiesString() {
-		if (!Utils::modEnabled() || !m_fields->cameraProperties) return "";
+		const auto fields = m_fields.self();
+		if (!Utils::modEnabled() || !fields->cameraProperties) return "";
 		// NEVER STORE A VARIABLE OF TYPE GJGameState, IT WILL FAIL ON ANDROID
-		bool isCompactCam = m_fields->compactCamera;
-		bool conditionalValues = m_fields->conditionalValues;
+		bool isCompactCam = fields->compactCamera;
+		bool conditionalValues = fields->conditionalValues;
 
 		CCPoint camPosition = m_gameState.m_cameraPosition;
 		CCPoint camOffset = m_gameState.m_cameraOffset;
@@ -510,8 +513,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 		);
 	}
 	std::string buildGeodeLoaderString(Manager* manager) {
-		if (!Utils::modEnabled() || !m_fields->geodeInfo) return "";
-		if (m_fields->compactGeode) {
+		const auto fields = m_fields.self();
+		if (!Utils::modEnabled() || !fields->geodeInfo) return "";
+		if (fields->compactGeode) {
 			return fmt::format(
 				"-- Geode v{} --\nGD v{} on {}\nMods: {} + {} = {} ({})",
 				manager->geodeVersion, manager->gameVersion, manager->platform, manager->loadedMods,
@@ -525,8 +529,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 		);
 	}
 	std::string buildMiscInfoString() {
-		if (!Utils::modEnabled() || !m_fields->miscInfo) return "";
-		std::string textureQuality = m_fields->textureQuality ? fmt::format("\nQuality: {}", m_fields->textureQualityString) : "";
+		const auto fields = m_fields.self();
+		if (!Utils::modEnabled() || !fields->miscInfo) return "";
+		std::string textureQuality = fields->textureQuality ? fmt::format("\nQuality: {}", fields->textureQualityString) : "";
 		return fmt::format("-- Misc --\n{}{}{}{}", getWindowInfo(), textureQuality, getCurrentTime(), getUptime());
 	}
 	static bool xContainedInY(std::string substring, const std::string_view string, const bool withColon = true) {
@@ -558,9 +563,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return nullptr;
 	}
 	std::string hIDeString() {
+		const auto fields = m_fields.self();
 		std::mt19937 randomSeed(std::random_device{}());
-		std::shuffle(m_fields->hIDeVector.begin(), m_fields->hIDeVector.end(), randomSeed);
-		return m_fields->hIDeVector.front();
+		std::shuffle(fields->hIDeVector.begin(), fields->hIDeVector.end(), randomSeed);
+		return fields->hIDeVector.front();
 	}
 	static std::string replaceXWithYInZ(const std::string& forRegex, const std::string& replacement, const std::string& mainString) {
 		return std::regex_replace(mainString, std::regex(forRegex), replacement);

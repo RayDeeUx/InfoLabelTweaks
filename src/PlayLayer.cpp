@@ -344,7 +344,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 
 		if (thePlayer->m_isShip) {
 			if (!isPlat) status = "Ship";
-			else { status = "Jetpack"; }
+			else status = "Jetpack";
 		}
 		else if (thePlayer->m_isBall) status = "Ball";
 		else if (thePlayer->m_isBird) status = "UFO";
@@ -352,13 +352,13 @@ class $modify(MyPlayLayer, PlayLayer) {
 		else if (thePlayer->m_isSpider) status = "Spider";
 		else if (thePlayer->m_isDart || thePlayer->m_isSwing) {
 			if (thePlayer->m_isDart) status = "Wave";
-			else { status = "Swing"; }
+			else status = "Swing";
 			if (isPlat) {
 				if (fields->manager->gameVersion != "2.210") status = status.append("*");
-				else { status = status.append("?"); }
+				else status = status.append("?");
 			}
 		}
-		else { status = "Cube"; }
+		else status = "Cube";
 
 		if (thePlayer->m_vehicleSize == .6f) status = fmt::format("Mini {}", status);
 		else if (thePlayer->m_vehicleSize != 1.f) status = status.append(" of strange size");
@@ -367,27 +367,27 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (thePlayer->m_isUpsideDown) {
 				if (thePlayer->m_isSideways) {
 					if (compactDirs) status = fmt::format("->] {}", status);
-					else { status = fmt::format("Rightwards {}", status); }
+					else status = fmt::format("Rightwards {}", status);
 				}
-				else { status = fmt::format("Flipped {}", status); }
+				else status = fmt::format("Flipped {}", status);
 			} else if (thePlayer->m_isSideways) {
 				if (compactDirs) status = fmt::format("[<- {}", status);
-				else { status = fmt::format("Leftwards {}", status); }
+				else status = fmt::format("Leftwards {}", status);
 			}
 		} else {
 			if (thePlayer->m_isUpsideDown) status = fmt::format("Flipped {}", status);
 			if (thePlayer->m_isSideways) {
 				if (thePlayer->m_isGoingLeft) {
 					if (compactDirs) status = fmt::format("\\/ {}" , status);
-					else { status = fmt::format("Downwards {}", status); }
+					else status = fmt::format("Downwards {}", status);
 				}
 				else {
 					if (compactDirs) status = fmt::format("/\\ {}" , status);
-					else { status = fmt::format("Upwards {}", status); }
+					else status = fmt::format("Upwards {}", status);
 				}
 			} else if (thePlayer->m_isGoingLeft) {
 				if (compactDirs) status = fmt::format("<- {}", status);
-				else { status = fmt::format("Reversed {}", status); }
+				else status = fmt::format("Reversed {}", status);
 			}
 		}
 
@@ -452,7 +452,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			else if (m_level->m_levelLength == 1.f) level = level.append(" [Short]");
 			else if (m_level->m_levelLength == 2.f) level = level.append(" [Medium]");
 			else if (m_level->m_levelLength == 3.f) level = level.append(" [Long]");
-			else { level = level.append(" [XL]"); }
+			else level = level.append(" [XL]");
 		}
 
 		if (m_level->m_levelType == GJLevelType::Editor) {

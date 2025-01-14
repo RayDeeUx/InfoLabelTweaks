@@ -1,4 +1,8 @@
 ## InfoLabelTweaks Changelog
+## v1.0.5
+- <cr>MASSIVE</c> refactor to reduce lag under certain circumstances.
+  - Thank you to Alphalaneous for teaching me one of their tricks for doing so.
+- Fix that one rare bug where the Player Velocity display would be prefixed with a `/`.
 ## v1.0.4
 - Change how FPS is calculated.
 - Add `Misc` category. Contains:

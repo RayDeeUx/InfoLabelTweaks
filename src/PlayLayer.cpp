@@ -136,6 +136,12 @@ class $modify(MyPlayLayer, PlayLayer) {
 		bool lastKey;
 
 		bool gameplayHeader;
+
+		float chromaDebugTextSpeed;
+
+		int64_t customFont;
+
+		std::string customFooter;
 	};
 	void setupSettings() {
 		const auto fields = m_fields.self();
@@ -198,6 +204,12 @@ class $modify(MyPlayLayer, PlayLayer) {
 		fields->lastKey = Utils::getBool("lastKey");
 
 		fields->gameplayHeader = Utils::getBool("gameplayHeader");
+
+		fields->chromaDebugTextSpeed = Utils::getDouble("chromaDebugTextSpeed");
+
+		fields->customFont = Utils::getInt("customFont");
+
+		fields->customFooter = Utils::getString("customFooter");
 	}
 	std::string getCurrentTime() {
 		if (!Utils::modEnabled()) return "";
@@ -602,16 +614,15 @@ class $modify(MyPlayLayer, PlayLayer) {
 			fields->appliedBlending = true;
 		} else fields->appliedBlending = false;
 		if (!fields->appliedChromaOrDefaultColor) {
-			if (!fields->chromaDebugText) {
-				debugTextNode->setColor({255, 255, 255}); // ensure that node color is white in case someone turns off chroma mode mid-session
-			} else {
-				double chromaSpeed = Utils::getDouble("chromaDebugTextSpeed");
-				CCFiniteTimeAction* tintOne = CCTintTo::create(chromaSpeed, 255, 128, 128);
-				CCFiniteTimeAction* tintTwo = CCTintTo::create(chromaSpeed, 255, 255, 128);
-				CCFiniteTimeAction* tintThree = CCTintTo::create(chromaSpeed, 128, 255, 128);
-				CCFiniteTimeAction* tintFour = CCTintTo::create(chromaSpeed, 128, 255, 255);
-				CCFiniteTimeAction* tintFive = CCTintTo::create(chromaSpeed, 128, 128, 255);
-				CCFiniteTimeAction* tintSix = CCTintTo::create(chromaSpeed, 255, 128, 255);
+			if (!fields->chromaDebugText) debugTextNode->setColor({255, 255, 255});
+			// ensure that node color is white in case someone turns off chroma mode mid-session
+			else {
+				CCFiniteTimeAction* tintOne = CCTintTo::create(fields->chromaDebugTextSpeed, 255, 128, 128);
+				CCFiniteTimeAction* tintTwo = CCTintTo::create(fields->chromaDebugTextSpeed, 255, 255, 128);
+				CCFiniteTimeAction* tintThree = CCTintTo::create(fields->chromaDebugTextSpeed, 128, 255, 128);
+				CCFiniteTimeAction* tintFour = CCTintTo::create(fields->chromaDebugTextSpeed, 128, 255, 255);
+				CCFiniteTimeAction* tintFive = CCTintTo::create(fields->chromaDebugTextSpeed, 128, 128, 255);
+				CCFiniteTimeAction* tintSix = CCTintTo::create(fields->chromaDebugTextSpeed, 255, 128, 255);
 				CCActionInterval* sequence = CCSequence::create(tintOne, tintTwo, tintThree, tintFour, tintFive, tintSix, nullptr);
 				CCAction* repeat = CCRepeatForever::create(sequence);
 				debugTextNode->runAction(repeat);
@@ -625,7 +636,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			fields->opacitySet = true;
 		}
 		if (!fields->fontSet) {
-			int64_t fontID = Utils::getInt("customFont");
+			const int64_t fontID = fields->customFont;
 			if (fontID == -2) debugTextNode->setFntFile("goldFont.fnt");
 			else if (fontID == -1) debugTextNode->setFntFile("bigFont.fnt");
 			else if (fontID != 0)
@@ -799,7 +810,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 				debugTextContents = debugTextContents.append(fmt::format("{}\n", buildGeodeLoaderString(fields->manager)));
 			if (fields->miscInfo)
 				debugTextContents = debugTextContents.append(fmt::format("{}\n", buildMiscInfoString()));
-			std::string customFooter = Utils::getString("customFooter");
+			const std::string& customFooter = fields->customFooter;
 			if (!customFooter.empty()) {
 				std::smatch match;
 				if (std::regex_search(customFooter, match, asciiOnlyMaxTwentyRegex))
@@ -810,9 +821,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 			debugTextContents = replaceXWithYInZ("\n\n", "\n", debugTextContents);
 			debugTextNode->setString(debugTextContents.c_str());
 
-			if (fields->logDebugText) {
+			if (fields->logDebugText)
 				log::info("\n--- LOGGED DEBUG TEXT [AFTER INFOLABELTWEAKS] ---\n{}", debugTextContents);
-			}
 		}
 	}
 };

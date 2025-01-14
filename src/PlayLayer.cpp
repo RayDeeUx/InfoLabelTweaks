@@ -77,6 +77,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 		float winWidthPixels = CCDirector::get()->getWinSizeInPixels().width;
 		bool isFullscreen = GameManager::get()->getGameVariable("0025");
 
+		bool isEnabled;
+
 		bool twelveHour;
 		bool shortMonth;
 		bool dayOfWeek;
@@ -145,6 +147,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	};
 	void setupSettings() {
 		const auto fields = m_fields.self();
+		fields->isEnabled = Utils::modEnabled();
 		fields->twelveHour = Utils::getBool("twelveHour");
 		fields->shortMonth = Utils::getBool("shortMonth");
 		fields->dayOfWeek = Utils::getBool("dayOfWeek");
@@ -212,8 +215,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 		fields->customFooter = Utils::getString("customFooter");
 	}
 	std::string getCurrentTime() {
-		if (!Utils::modEnabled()) return "";
 		const auto fields = m_fields.self();
+		if (!fields->isEnabled) return "";
 		Manager* manager = Manager::getSharedInstance();
 		std::time_t tinnyTim = std::time(nullptr);
 		std::tm* now = std::localtime(&tinnyTim);
@@ -297,7 +300,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return fmt::format("UTC{}{}{}", sign, hour, minutes);
 	}
 	std::string getUptime(std::time_t now = std::time(nullptr)) {
-		if (!Utils::modEnabled() || !m_fields->uptime) return "";
+		const auto fields = m_fields.self();
+		if (!fields->isEnabled || !fields->uptime) return "";
 		long elapsed = difftime(now, Manager::getSharedInstance()->originalTimestamp);
 		long days = elapsed / SECONDS_PER_DAY;
 		elapsed -= days * SECONDS_PER_DAY;
@@ -316,7 +320,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	std::string getWindowInfo() {
 		const auto fields = m_fields.self();
-		if (!Utils::modEnabled() || !fields->miscInfo) return "";
+		if (!fields->isEnabled || !fields->miscInfo) return "";
 		const int gcd = Utils::gcd(fields->winWidthPixels, fields->winHeightPixels);
 		return fmt::format("Window: {}x{} ({}:{})\nFullscreen: {}",
 			fields->winWidthPixels, fields->winHeightPixels,
@@ -326,7 +330,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	std::string buildPlayerStatusString(PlayerObject* thePlayer) {
 		const auto fields = m_fields.self();
-		if (!Utils::modEnabled() || !fields->playerStatus) return "";
+		if (!fields->isEnabled || !fields->playerStatus) return "";
 		std::string status = "Unknown";
 		std::string playerNum = "";
 		std::string fullVelocity = "";
@@ -442,7 +446,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	std::string buildLevelTraitsString() {
 		const auto fields = m_fields.self();
-		if (!Utils::modEnabled() || !fields->levelTraits) return "";
+		if (!fields->isEnabled || !fields->levelTraits) return "";
 		std::string level = "Unknown";
 		if (m_level->isPlatformer()) {
 			level = "Platformer";
@@ -472,7 +476,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	std::string buildCameraPropertiesString() {
 		const auto fields = m_fields.self();
-		if (!Utils::modEnabled() || !fields->cameraProperties) return "";
+		if (!fields->isEnabled || !fields->cameraProperties) return "";
 		// NEVER STORE A VARIABLE OF TYPE GJGameState, IT WILL FAIL ON ANDROID
 		bool isCompactCam = fields->compactCamera;
 		bool conditionalValues = fields->conditionalValues;
@@ -514,7 +518,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	std::string buildGeodeLoaderString(Manager* manager) {
 		const auto fields = m_fields.self();
-		if (!Utils::modEnabled() || !fields->geodeInfo) return "";
+		if (!fields->isEnabled || !fields->geodeInfo) return "";
 		if (fields->compactGeode) {
 			return fmt::format(
 				"-- Geode v{} --\nGD v{} on {}\nMods: {} + {} = {} ({})",
@@ -530,7 +534,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	}
 	std::string buildMiscInfoString() {
 		const auto fields = m_fields.self();
-		if (!Utils::modEnabled() || !fields->miscInfo) return "";
+		if (!fields->isEnabled || !fields->miscInfo) return "";
 		std::string textureQuality = fields->textureQuality ? fmt::format("\nQuality: {}", fields->textureQualityString) : "";
 		return fmt::format("-- Misc --\n{}{}{}{}", getWindowInfo(), textureQuality, getCurrentTime(), getUptime());
 	}
@@ -601,7 +605,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 	void postUpdate(float dt) {
 		PlayLayer::postUpdate(dt);
 		const auto fields = m_fields.self();
-		if (!Utils::modEnabled() || fields->manager->isMinecraftify) return;
+		if (!fields->isEnabled || fields->manager->isMinecraftify) return;
 
 		fields->debugText = findDebugTextNode();
 		if (!fields->debugText || !fields->debugText->isVisible()) return;

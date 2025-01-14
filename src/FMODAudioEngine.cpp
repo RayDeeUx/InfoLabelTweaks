@@ -17,20 +17,20 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 		const std::list<std::string> badSFX = { "achievement_01.ogg", "magicExplosion.ogg", "gold02.ogg", "secretKey.ogg" };
 	};
 	std::string extractModID(const std::smatch& theMatch) {
+		const auto fields = m_fields.self();
 		/*
 		log::info("{}", theMatch.size());
 		for (auto matchString : theMatch) {
 			log::info("matchString: {}", matchString.str());
 		}
-		log::info("theMatch[m_fields->desiredIndexForModID].str(): {}", theMatch[m_fields->desiredIndexForModID].str());
+		log::info("theMatch[fields->desiredIndexForModID].str(): {}", theMatch[fields->desiredIndexForModID].str());
 		*/
-		if (const Mod* mod = Utils::getMod(theMatch[m_fields->desiredIndexForModID].str())) {
+		if (const Mod* mod = Utils::getMod(theMatch[fields->desiredIndexForModID].str()))
 			return fmt::format("[From {}]", mod->getName());
-		} else {
-			return "[From another Geode mod]";
-		}
+		return "[From another Geode mod]";
 	}
 	std::string parsePath(std::string path) {
+		const auto fields = m_fields.self();
 		// log::info("path before: {}", path);
 		std::smatch match;
 		std::smatch geodeMatch;
@@ -48,31 +48,29 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 			}
 		} else if (std::regex_match(path, match, songEffectRegex)) {
 			if (std::regex_search(path, geodeMatch, geodeAudioRegex)) {
-				if (Utils::getBool("audioFromMods")){
-					result = extractModID(geodeMatch);
-				} else {
-					result = "[Geode mod]";
-				}
-			} else {
-				result = fmt::format("{}.{}", match[m_fields->desiredIndexForFileName].str(), match[m_fields->desiredIndexForFileName + 1].str());
-			}
+				if (Utils::getBool("audioFromMods")) result = extractModID(geodeMatch);
+				else result = "[Geode mod]";
+			} else
+				result = fmt::format("{}.{}", match[fields->desiredIndexForFileName].str(), match[fields->desiredIndexForFileName + 1].str());
 		} else {
 			result = fmt::format("{}", path);
 		}
 		return result;
 	}
 	FMODSound& preloadEffect(gd::string path) {
+		const auto fields = m_fields.self();
 		FMODSound& result = FMODAudioEngine::sharedEngine()->preloadEffect(path);
-		if (!Utils::modEnabled() || !PlayLayer::get()) { return result; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
-		if (std::find(m_fields->vanillaSFX.begin(), m_fields->vanillaSFX.end(), path) != m_fields->vanillaSFX.end()) { return result; } // ignore vanilla sfx, the debug menu should only record sfx from the level itself
-		m_fields->manager->lastPlayedEffect = parsePath(path);
+		if (!Utils::modEnabled() || !PlayLayer::get()) return result; // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
+		if (std::find(fields->vanillaSFX.begin(), fields->vanillaSFX.end(), path) != fields->vanillaSFX.end()) { return result; } // ignore vanilla sfx, the debug menu should only record sfx from the level itself
+		fields->manager->lastPlayedEffect = parsePath(path);
 		return result;
 	}
 	FMOD::Sound* preloadMusic(gd::string path, bool p1, int p2) {
+		const auto fields = m_fields.self();
 		FMOD::Sound* result = FMODAudioEngine::sharedEngine()->preloadMusic(path, p1, p2);
 		// FMODAudioEngine::sharedEngine()->loadMusic(path, speed, p2, volume, shouldLoop, p5, p6);
-		if (!Utils::modEnabled() || !PlayLayer::get()) { return result; } // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
-		m_fields->manager->lastPlayedSong = parsePath(path);
+		if (!Utils::modEnabled() || !PlayLayer::get()) return result; // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
+		fields->manager->lastPlayedSong = parsePath(path);
 		return result;
 	}
 };

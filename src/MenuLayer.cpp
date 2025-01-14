@@ -1,4 +1,5 @@
 #include <Geode/modify/MenuLayer.hpp>
+#include "PlayLayer.hpp"
 #include "Manager.hpp"
 #include "Utils.hpp"
 
@@ -39,3 +40,9 @@ class $modify(MyMenuLayer, MenuLayer) {
 		return true;
 	}
 };
+
+$on_mod(Loaded) {
+	listenForAllSettingChanges([](std::shared_ptr<SettingV3> setting){
+		if (const auto pl = PlayLayer::get()) static_cast<MyPlayLayer*>(pl)->setupSettings();
+	});
+}

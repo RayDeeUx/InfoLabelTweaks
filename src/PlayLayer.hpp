@@ -1,3 +1,4 @@
+#pragma once
 #include <Geode/modify/PlayLayer.hpp>
 #include "Utils.hpp"
 #include "Manager.hpp"

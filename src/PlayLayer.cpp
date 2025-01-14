@@ -427,10 +427,8 @@ class $modify(MyPlayLayer, PlayLayer) {
 			int rotAccuracy = fields->accuratePlayer ? 2 : 0;
 			std::string rotationStr = fmt::format("{:.{}f}", thePlayer->getRotation(), rotAccuracy);
 			std::string rotationSpeedStr = fmt::format("{:.{}f}", thePlayer->m_rotationSpeed, rotAccuracy);
-			fullRotation = fmt::format(" / Rot: [{}, {}]", rotationStr, rotationSpeedStr);
-			if (!fields->isDual && !fields->velocityPlayer) {
-				fullRotation = fmt::format("Rot: [{}, {}]", rotationStr, rotationSpeedStr);
-			}
+			if (!fields->isDual && !fields->velocityPlayer) fullRotation = fmt::format("Rot: [{}, {}]", rotationStr, rotationSpeedStr);
+			else fullRotation = fmt::format(" / Rot: [{}, {}]", rotationStr, rotationSpeedStr);
 		}
 
 		std::string posVeloRot = fmt::format("{}{}{}{}", playerNum, playerPosition, fullVelocity, fullRotation);

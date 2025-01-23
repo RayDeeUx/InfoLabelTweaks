@@ -186,6 +186,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		fields->spaceUKScale = Utils::getBool("spaceUKScale");
 		fields->positionAlignRight = Utils::getBool("positionAlignRight");
 		fields->positionAlignBottom = Utils::getBool("positionAlignBottom");
+		if (Utils::isModLoaded("raydeeux.toktikmode")) fields->blendingDebugText = Utils::getBool("blendingDebugText") && !Utils::getMod("raydeeux.toktikmode")->getSettingValue<bool>("enabled");
 
 		fields->logDebugText = Utils::getBool("logDebugText");
 
@@ -668,168 +669,168 @@ class $modify(MyPlayLayer, PlayLayer) {
 			});
 			if (fields->positionAlignRight) debugTextNode->setPositionX(CCDirector::get()->getWinSize().width - 5);
 			if (fields->positionAlignBottom) debugTextNode->setPositionY(10);
-		
-			std::string debugTextContents = debugTextNode->getString();
-
-			if (fields->logDebugText)
-				log::info("\n--- LOGGED DEBUG TEXT [BEFORE INFOLABELTWEAKS] ---\n{}", debugTextContents);
-			if (fields->isDual && fields->playerStatus) {
-				debugTextContents = replaceXWithYInZ("\nX: \\d+\nY:", "\nY:", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nY: \\d+\nActive:", "\nActive:", debugTextContents);
-			}
-			if (fields->currentChannel)
-				debugTextContents = replaceXWithYInZ(
-					"\n-- Audio --",
-					fmt::format("\nChannel: {}\n-- Audio --", m_gameState.m_currentChannel),
-					debugTextContents
-				);
-			if (fields->lastPlayedAudio)
-				debugTextContents = replaceXWithYInZ(
-					"\n(\r)?-- Audio --\nSongs: ",
-					fmt::format("\n-- Audio --\nLast Song: {}\nLast SFX: {}\nSongs: ", fields->manager->lastPlayedSong, fields->manager->lastPlayedEffect),
-					debugTextContents
-				);
-			if (fields->hIDe && (m_level->m_levelType == GJLevelType::Editor || m_level->m_unlisted)) {
-				std::smatch match;
-				if (std::regex_search(debugTextContents, match, levelIDRegex)) {
-					debugTextContents = replaceXWithYInZ(
-						"LevelID: \\d+\nTime: ",
-						fmt::format("LevelID: [{}]\nTime: ", fields->hIDeSet),
-						debugTextContents
-					);
-				}
-			}
-			if (fields->jumps) {
-				std::smatch match;
-				if (std::regex_search(debugTextContents, match, tapsCountRegex)) {
-					debugTextContents = replaceXWithYInZ(
-						"Taps: \\d+\nTimeWarp: ",
-						fmt::format("Taps: {} [{}]\nTimeWarp: ", match[1].str(), m_jumps),
-						debugTextContents
-					); // jump count from playlayer members: m_jump
-				}
-			}
-			if (fields->totalTime && m_level->isPlatformer()) {
-				std::smatch match;
-				if (std::regex_search(debugTextContents, match, timeLabelRegex))
-					debugTextContents = replaceXWithYInZ(
-						"Time: \\d+(\\.\\d+)?\nAttempt: ",
-						fmt::format("Time: {} [{}]\nAttempt: ", match[1].str(), fmt::format("{:.2f}", m_gameState.m_levelTime)),
-						debugTextContents
-					); // attempt time from playlayer gamestate member: m_gameState.m_levelTime
-			}
-			if (fields->totalAttempts) {
-				std::smatch match;
-				if (std::regex_search(debugTextContents, match, attemptCountRegex))
-					debugTextContents = replaceXWithYInZ(
-						"Attempts?: \\d+\nTaps: ",
-						fmt::format("Attempt: {} / {}\nTaps: ", match[1].str(), m_level->m_attempts.value()),
-						debugTextContents
-					); // total attempt count: m_level->m_attempts.value() [playlayer]
-			}
-			if (fields->affectedByForces && forcesExist) {
-				std::smatch match;
-				if (std::regex_search(debugTextContents, match, gravityModRegex))
-					debugTextContents = replaceXWithYInZ(
-						"Gravity: \\d+(\\.\\d+)?\nX: ",
-						fmt::format("Gravity: [{}]\nX: ", match[1].str()),
-						debugTextContents
-					); // worst case scenario: m_gravityMod
-			}
-			if (fields->accuratePosition) {
-				debugTextContents = replaceXWithYInZ("\nX: (\\d)+\n", fmt::format("\nX: {:.4f}\n", m_player1->m_position.x), debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nY: (\\d)+\n", fmt::format("\nY: {:.4f}\n", m_player1->m_position.y), debugTextContents);
-			}
-			if (fields->playerStatus)
-				debugTextContents = replaceXWithYInZ(
-					"\n-- Audio --",
-					(fields->isDual) ? fmt::format(
-						"\nP1 Status: {}\nP2 Status: {}\n-- Audio --",
-						buildPlayerStatusString(m_player1),
-						buildPlayerStatusString(m_player2)
-					) : fmt::format(
-						"\nStatus: {}\n-- Audio --",
-						buildPlayerStatusString(m_player1)
-					),
-					debugTextContents
-				);
-			if (fields->levelTraits)
-				debugTextContents = replaceXWithYInZ(
-					"\n-- Audio --",
-					fmt::format("\nLevel: {}\n-- Audio --", buildLevelTraitsString()),
-					debugTextContents
-				);
-			if (fields->conditionalValues) {
-				// cannot condense into one regex per situation it seems
-				debugTextContents = replaceXWithYInZ("\nTimeWarp: 1\n", "\n", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nGravity: 1\n", "\n", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nGradients: 0", "", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nParticles: 0", "", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nChannel: 0", "", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nMove: 0\n", "\n", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nSongs: 0\n", "\n", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nSFX: 0\n", "\n", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nRotate: 0\n", "\n", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nScale: 0\n", "\n", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nFollow: 0\n", "\n", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\n-- Perf --\n--", "\n--", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nMove: 0 / 0", "", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nRotate: 0 / 0", "", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nScale: 0 / 0", "", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nFollow: 0 / 0", "", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\nColOp: 0 / 0", "", debugTextContents);
-				debugTextContents = replaceXWithYInZ("\n-- Audio --\n--", "\n--", debugTextContents);
-				if (debugTextContents.ends_with(fields->endsWithArea)) debugTextContents = replaceXWithYInZ(fields->endsWithArea, "\n", debugTextContents);
-			}
-			if (fields->compactGameplay) {
-				debugTextContents = replaceXWithYInZ("\nTaps: ", " | Taps: ", debugTextContents); // Attempt and Taps
-				if (xContainedInY("TimeWarp", debugTextContents))
-					debugTextContents = replaceXWithYInZ("\nGravity: ", " | Gravity: ", debugTextContents); // TimeWarp and Gravity
-				if (xContainedInY("Gradients", debugTextContents) || xContainedInY("Active", debugTextContents))
-					debugTextContents = replaceXWithYInZ("\nParticles: ", " | Particles: ", debugTextContents); // Gradients and Particles
-				debugTextContents = replaceXWithYInZ("\nY: ", " | Y: ", debugTextContents); // X and Y position
-			}
-			if (fields->compactAudio && xContainedInY("Songs", debugTextContents))
-				debugTextContents = replaceXWithYInZ("\nSFX: ", " | SFX: ", debugTextContents);
-			if (fields->expandPerformance)
-				debugTextContents = replaceXWithYInZ("-- Perf --", "-- Performance --", debugTextContents);
-			if (fields->tapsToClicks)
-				debugTextContents = replaceXWithYInZ("Taps: ", (m_level->isPlatformer()) ? "Actions: " : "Clicks: ", debugTextContents);
-			if (fields->fixLevelIDLabel)
-				debugTextContents = replaceXWithYInZ("LevelID: ", "Level ID: ", debugTextContents);
-			if (fields->pluralAttempts)
-				debugTextContents = replaceXWithYInZ("Attempt: ", "Attempts: ", debugTextContents);
-			if (fields->fps || fields->lastKey) {
-				std::string fps = fields->fps ?
-					fmt::format("FPS: {:.0f}", CCDirector::get()->m_fFrameRate) : "";
-				std::string lastKey = fields->lastKey ?
-					fmt::format("Last Key: {}", fields->manager->lastKeyName) : "";
-				std::string merger = "";
-				if (!fps.empty() && !lastKey.empty())
-					merger = fields->compactGameplay ? " | " : "\n";
-				debugTextContents = fmt::format("{}{}{}\n{}", fps, merger, lastKey, debugTextContents);
-			}
-			if (fields->gameplayHeader)
-				debugTextContents = fmt::format("-- Gameplay --\n{}", debugTextContents);
-			if (fields->cameraProperties)
-				debugTextContents = debugTextContents.append(fmt::format("{}\n", buildCameraPropertiesString()));
-			if (fields->geodeInfo)
-				debugTextContents = debugTextContents.append(fmt::format("{}\n", buildGeodeLoaderString(fields->manager)));
-			if (fields->miscInfo)
-				debugTextContents = debugTextContents.append(fmt::format("{}\n", buildMiscInfoString()));
-			const std::string& customFooter = fields->customFooter;
-			if (!customFooter.empty()) {
-				std::smatch match;
-				if (std::regex_search(customFooter, match, asciiOnlyMaxTwentyRegex))
-					debugTextContents = debugTextContents.append(fmt::format("-- [{}] --", (customFooter.length() > 20) ? customFooter.substr(20) : customFooter));
-			}
-
-			// last hurrah
-			debugTextContents = replaceXWithYInZ("\n\n", "\n", debugTextContents);
-			debugTextNode->setString(debugTextContents.c_str());
-
-			if (fields->logDebugText)
-				log::info("\n--- LOGGED DEBUG TEXT [AFTER INFOLABELTWEAKS] ---\n{}", debugTextContents);
 		}
+
+		std::string debugTextContents = debugTextNode->getString();
+
+		if (fields->logDebugText)
+			log::info("\n--- LOGGED DEBUG TEXT [BEFORE INFOLABELTWEAKS] ---\n{}", debugTextContents);
+		if (fields->isDual && fields->playerStatus) {
+			debugTextContents = replaceXWithYInZ("\nX: \\d+\nY:", "\nY:", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nY: \\d+\nActive:", "\nActive:", debugTextContents);
+		}
+		if (fields->currentChannel)
+			debugTextContents = replaceXWithYInZ(
+				"\n-- Audio --",
+				fmt::format("\nChannel: {}\n-- Audio --", m_gameState.m_currentChannel),
+				debugTextContents
+			);
+		if (fields->lastPlayedAudio)
+			debugTextContents = replaceXWithYInZ(
+				"\n(\r)?-- Audio --\nSongs: ",
+				fmt::format("\n-- Audio --\nLast Song: {}\nLast SFX: {}\nSongs: ", fields->manager->lastPlayedSong, fields->manager->lastPlayedEffect),
+				debugTextContents
+			);
+		if (fields->hIDe && (m_level->m_levelType == GJLevelType::Editor || m_level->m_unlisted)) {
+			std::smatch match;
+			if (std::regex_search(debugTextContents, match, levelIDRegex)) {
+				debugTextContents = replaceXWithYInZ(
+					"LevelID: \\d+\nTime: ",
+					fmt::format("LevelID: [{}]\nTime: ", fields->hIDeSet),
+					debugTextContents
+				);
+			}
+		}
+		if (fields->jumps) {
+			std::smatch match;
+			if (std::regex_search(debugTextContents, match, tapsCountRegex)) {
+				debugTextContents = replaceXWithYInZ(
+					"Taps: \\d+\nTimeWarp: ",
+					fmt::format("Taps: {} [{}]\nTimeWarp: ", match[1].str(), m_jumps),
+					debugTextContents
+				); // jump count from playlayer members: m_jump
+			}
+		}
+		if (fields->totalTime && m_level->isPlatformer()) {
+			std::smatch match;
+			if (std::regex_search(debugTextContents, match, timeLabelRegex))
+				debugTextContents = replaceXWithYInZ(
+					"Time: \\d+(\\.\\d+)?\nAttempt: ",
+					fmt::format("Time: {} [{}]\nAttempt: ", match[1].str(), fmt::format("{:.2f}", m_gameState.m_levelTime)),
+					debugTextContents
+				); // attempt time from playlayer gamestate member: m_gameState.m_levelTime
+		}
+		if (fields->totalAttempts) {
+			std::smatch match;
+			if (std::regex_search(debugTextContents, match, attemptCountRegex))
+				debugTextContents = replaceXWithYInZ(
+					"Attempts?: \\d+\nTaps: ",
+					fmt::format("Attempt: {} / {}\nTaps: ", match[1].str(), m_level->m_attempts.value()),
+					debugTextContents
+				); // total attempt count: m_level->m_attempts.value() [playlayer]
+		}
+		if (fields->affectedByForces && forcesExist) {
+			std::smatch match;
+			if (std::regex_search(debugTextContents, match, gravityModRegex))
+				debugTextContents = replaceXWithYInZ(
+					"Gravity: \\d+(\\.\\d+)?\nX: ",
+					fmt::format("Gravity: [{}]\nX: ", match[1].str()),
+					debugTextContents
+				); // worst case scenario: m_gravityMod
+		}
+		if (fields->accuratePosition) {
+			debugTextContents = replaceXWithYInZ("\nX: (\\d)+\n", fmt::format("\nX: {:.4f}\n", m_player1->m_position.x), debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nY: (\\d)+\n", fmt::format("\nY: {:.4f}\n", m_player1->m_position.y), debugTextContents);
+		}
+		if (fields->playerStatus)
+			debugTextContents = replaceXWithYInZ(
+				"\n-- Audio --",
+				(fields->isDual) ? fmt::format(
+					"\nP1 Status: {}\nP2 Status: {}\n-- Audio --",
+					buildPlayerStatusString(m_player1),
+					buildPlayerStatusString(m_player2)
+				) : fmt::format(
+					"\nStatus: {}\n-- Audio --",
+					buildPlayerStatusString(m_player1)
+				),
+				debugTextContents
+			);
+		if (fields->levelTraits)
+			debugTextContents = replaceXWithYInZ(
+				"\n-- Audio --",
+				fmt::format("\nLevel: {}\n-- Audio --", buildLevelTraitsString()),
+				debugTextContents
+			);
+		if (fields->conditionalValues) {
+			// cannot condense into one regex per situation it seems
+			debugTextContents = replaceXWithYInZ("\nTimeWarp: 1\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nGravity: 1\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nGradients: 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nParticles: 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nChannel: 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nMove: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nSongs: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nSFX: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nRotate: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nScale: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nFollow: 0\n", "\n", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\n-- Perf --\n--", "\n--", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nMove: 0 / 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nRotate: 0 / 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nScale: 0 / 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nFollow: 0 / 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\nColOp: 0 / 0", "", debugTextContents);
+			debugTextContents = replaceXWithYInZ("\n-- Audio --\n--", "\n--", debugTextContents);
+			if (debugTextContents.ends_with(fields->endsWithArea)) debugTextContents = replaceXWithYInZ(fields->endsWithArea, "\n", debugTextContents);
+		}
+		if (fields->compactGameplay) {
+			debugTextContents = replaceXWithYInZ("\nTaps: ", " | Taps: ", debugTextContents); // Attempt and Taps
+			if (xContainedInY("TimeWarp", debugTextContents))
+				debugTextContents = replaceXWithYInZ("\nGravity: ", " | Gravity: ", debugTextContents); // TimeWarp and Gravity
+			if (xContainedInY("Gradients", debugTextContents) || xContainedInY("Active", debugTextContents))
+				debugTextContents = replaceXWithYInZ("\nParticles: ", " | Particles: ", debugTextContents); // Gradients and Particles
+			debugTextContents = replaceXWithYInZ("\nY: ", " | Y: ", debugTextContents); // X and Y position
+		}
+		if (fields->compactAudio && xContainedInY("Songs", debugTextContents))
+			debugTextContents = replaceXWithYInZ("\nSFX: ", " | SFX: ", debugTextContents);
+		if (fields->expandPerformance)
+			debugTextContents = replaceXWithYInZ("-- Perf --", "-- Performance --", debugTextContents);
+		if (fields->tapsToClicks)
+			debugTextContents = replaceXWithYInZ("Taps: ", (m_level->isPlatformer()) ? "Actions: " : "Clicks: ", debugTextContents);
+		if (fields->fixLevelIDLabel)
+			debugTextContents = replaceXWithYInZ("LevelID: ", "Level ID: ", debugTextContents);
+		if (fields->pluralAttempts)
+			debugTextContents = replaceXWithYInZ("Attempt: ", "Attempts: ", debugTextContents);
+		if (fields->fps || fields->lastKey) {
+			std::string fps = fields->fps ?
+				fmt::format("FPS: {:.0f}", CCDirector::get()->m_fFrameRate) : "";
+			std::string lastKey = fields->lastKey ?
+				fmt::format("Last Key: {}", fields->manager->lastKeyName) : "";
+			std::string merger = "";
+			if (!fps.empty() && !lastKey.empty())
+				merger = fields->compactGameplay ? " | " : "\n";
+			debugTextContents = fmt::format("{}{}{}\n{}", fps, merger, lastKey, debugTextContents);
+		}
+		if (fields->gameplayHeader)
+			debugTextContents = fmt::format("-- Gameplay --\n{}", debugTextContents);
+		if (fields->cameraProperties)
+			debugTextContents = debugTextContents.append(fmt::format("{}\n", buildCameraPropertiesString()));
+		if (fields->geodeInfo)
+			debugTextContents = debugTextContents.append(fmt::format("{}\n", buildGeodeLoaderString(fields->manager)));
+		if (fields->miscInfo)
+			debugTextContents = debugTextContents.append(fmt::format("{}\n", buildMiscInfoString()));
+		const std::string& customFooter = fields->customFooter;
+		if (!customFooter.empty()) {
+			std::smatch match;
+			if (std::regex_search(customFooter, match, asciiOnlyMaxTwentyRegex))
+				debugTextContents = debugTextContents.append(fmt::format("-- [{}] --", (customFooter.length() > 20) ? customFooter.substr(20) : customFooter));
+		}
+
+		// last hurrah
+		debugTextContents = replaceXWithYInZ("\n\n", "\n", debugTextContents);
+		debugTextNode->setString(debugTextContents.c_str());
+
+		if (fields->logDebugText)
+			log::info("\n--- LOGGED DEBUG TEXT [AFTER INFOLABELTWEAKS] ---\n{}", debugTextContents);
 	}
 };

@@ -1,4 +1,7 @@
 ## InfoLabelTweaks Changelog
+## v1.0.6
+- Fix a silly bug where the info label text would remain unchanged if the positioning toggles were not enabled.
+- Proper compatibility with TokTikMode.
 ## v1.0.5
 - <cr>MASSIVE</c> refactor to reduce lag under certain circumstances.
   - Thank you to Alphalaneous for teaching me one of their tricks for doing so.

@@ -1,4 +1,8 @@
 ## InfoLabelTweaks Changelog
+## v1.0.7
+- Fix a bug where the full song path of a song would be exposed to the viewer if the song name had spaces.
+  - This typically doesn't happen under usual circumstances, but is more likely to happen when using personal replacement songs from your settings in the NeutralizeBadSongs mod.
+  - Also added support for detecting `.oga` files for song paths. Hopefully there aren't any others that were forgotten.
 ## v1.0.6
 - Fix a silly bug where the info label text would remain unchanged if the positioning toggles were not enabled.
 - Proper compatibility with TokTikMode.

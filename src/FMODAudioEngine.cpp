@@ -5,7 +5,7 @@
 
 using namespace geode::prelude;
 
-static std::regex songEffectRegex(R"(.*(?:\\|\/)([\S ]+)\.(mp3|ogg|oga|wav|flac))", std::regex::optimize | std::regex::icase); // see https://regex101.com/r/CqvIvI/1.
+static std::regex songEffectRegex(R"(.*(?:\\|\/)([\S ]+)\.(mp3|ogg|oga|wav|flac))", std::regex::optimize | std::regex::icase); // see https://regex101.com/r/09O4Xp/1.
 static std::regex geodeAudioRegex(R"(((?!\S+geode)(?:\\|\/)(?:([a-z0-9\-_]+\.[a-z0-9\-_]+)(?:\\|\/))([\S ]+)\.(mp3|ogg|oga|wav|flac))$)", std::regex::optimize | std::regex::icase); // see https://regex101.com/r/0b9rY1/1.
 
 class $modify(MyFMODAudioEngine, FMODAudioEngine) {

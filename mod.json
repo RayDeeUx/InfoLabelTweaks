@@ -1,13 +1,14 @@
 {
-	"geode": "4.0.1",
+	"geode": "4.3.1",
 	"gd": {
 		"win": "2.2074",
 		"android": "2.2074",
-		"mac": "2.2074"
+		"mac": "2.2074",
+		"ios": "2.2074"
 	},
 	"id": "raydeeux.infolabeltweaks",
 	"name": "InfoLabelTweaks",
-	"version": "v1.0.7",
+	"version": "v1.0.8",
 	"developer": "RayDeeUx",
 	"description": "Adds additional information to GD's Info Label. (Formerly part of ErysEdits.)",
 	"settings": {
@@ -58,7 +59,7 @@
 			"type": "float",
 			"default": 0.5,
 			"min": 0.1,
-			"max": 2.0,
+			"max": 2,
 			"control": {
 				"input": false,
 				"slider": true,
@@ -75,7 +76,7 @@
 			"type": "float",
 			"default": 0.5,
 			"min": 0.15,
-			"max": 1.00,
+			"max": 1,
 			"control": {
 				"input": false,
 				"slider": true,
@@ -180,7 +181,10 @@
 			"description": "Shows the name of the last key you pressed, stylized like \"Last Key: [name]\".\n\n<cy>This will next to your FPS count if you have toggle on \"Compact Gameplay\".</c>",
 			"type": "bool",
 			"default": false,
-			"platforms": ["win", "mac"]
+			"platforms": [
+				"win",
+				"mac"
+			]
 		},
 		"jumps": {
 			"name": "Include Jumps",
@@ -336,7 +340,11 @@
 			"description": "<cl>Adapted from original code by Cvolton.</c>\nReplaces your current timezone abbreviation with a (rough) estimate of your UTC offset.\n\n<cy>This setting is not available on Windows; Windows users are only shown their UTC offset.</c>",
 			"type": "bool",
 			"default": true,
-			"platforms": ["mac", "android32", "android64"]
+			"platforms": [
+				"mac",
+				"android32",
+				"android64"
+			]
 		},
 		"uptime": {
 			"name": "Include Uptime",

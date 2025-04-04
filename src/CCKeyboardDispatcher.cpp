@@ -1,3 +1,4 @@
+#ifdef GEODE_IS_DESKTOP
 #include <Geode/modify/CCKeyboardDispatcher.hpp>
 #include "Manager.hpp"
 
@@ -8,10 +9,11 @@ class $modify(MyCCKeyboardDispatcher, CCKeyboardDispatcher) {
 		bool result = CCKeyboardDispatcher::dispatchKeyboardMSG(key, p1, p2);
 		if (PlayLayer::get()) {
 			auto name = CCKeyboardDispatcher::keyToString(key);
-			if (name == nullptr) name = "Unknown";
+			if (!name) name = "Unknown";
 			Manager::getSharedInstance()->lastKeyName = name;
 		}
 		else Manager::getSharedInstance()->lastKeyName = "N/A";
 		return result;
 	}
 };
+#endif

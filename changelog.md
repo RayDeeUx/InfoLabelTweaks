@@ -1,4 +1,6 @@
 ## InfoLabelTweaks Changelog
+## v1.0.8
+- iPhone and iPads (and maybe iPods?) are now able to enjoy InfoLabelTweaks!
 ## v1.0.7
 - Fix a bug where the full song path of a song would be exposed to the viewer if the song name had spaces.
   - This typically doesn't happen under usual circumstances, but is more likely to happen when using personal replacement songs from your settings in the NeutralizeBadSongs mod.

@@ -206,7 +206,12 @@ class $modify(MyPlayLayer, PlayLayer) {
 		fields->pluralAttempts = Utils::getBool("pluralAttempts");
 		
 		fields->fps = Utils::getBool("fps");
+
+		#ifdef GEODE_IS_DESKTOP
 		fields->lastKey = Utils::getBool("lastKey");
+		#else
+		fields->lastKey = false;
+		#endif
 
 		fields->gameplayHeader = Utils::getBool("gameplayHeader");
 

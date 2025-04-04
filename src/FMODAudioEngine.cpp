@@ -18,26 +18,26 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 	};
 	std::string extractModID(const std::smatch& theMatch) {
 		const auto fields = m_fields.self();
-		/*
+		// /*
 		log::info("{}", theMatch.size());
 		for (auto matchString : theMatch) {
 			log::info("matchString: {}", matchString.str());
 		}
 		log::info("theMatch[fields->desiredIndexForModID].str(): {}", theMatch[fields->desiredIndexForModID].str());
-		*/
+		// */
 		if (const Mod* mod = Utils::getMod(theMatch[fields->desiredIndexForModID].str()))
 			return fmt::format("[From {}]", mod->getName());
 		return "[From another Geode mod]";
 	}
 	std::string parsePath(std::string path) {
 		const auto fields = m_fields.self();
-		// log::info("path before: {}", path);
+		log::info("path before: {}", path);
 		std::smatch match;
 		std::smatch geodeMatch;
 		std::string result = "";
 		path = std::regex_replace(path, std::regex(R"(com\.geode\.launcher\/)"), ""); // android is cring, original is [ "com\.geode\.launcher\/" ]
 		path = fmt::format("/{}", path); // adding an extra slash to get it working on all possible paths. this is because combo burst does some stuff under the hood i am too scared to look at and i don't want to define more regex than necessary.
-		// log::info("path after: {}", path);
+		log::info("path after: {}", path);
 		if (path.find("geode") != std::string::npos && (path.find("mods") != std::string::npos || path.find("config") != std::string::npos)) {
 			if (std::regex_search(path, geodeMatch, geodeAudioRegex)) {
 				if (Utils::getBool("audioFromMods")){

@@ -55,8 +55,7 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 		FMODSound& result = FMODAudioEngine::sharedEngine()->preloadEffect(path);
 		if (!Utils::modEnabled() || !PlayLayer::get()) return result; // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
 		if (std::ranges::find(fields->vanillaSFX, path) != fields->vanillaSFX.end()) return result; // ignore vanilla sfx, the debug menu should only record sfx from the level itself
-		const std::string& parsedResult = MyFMODAudioEngine::parsePath(path);
-		Manager::getSharedInstance()->lastPlayedEffect = std::filesystem::exists(path) ? parsedResult : std::string("{ ").append(parsedResult).append(" }");
+		Manager::getSharedInstance()->lastPlayedEffect = MyFMODAudioEngine::parsePath(path);
 		return result;
 	}
 	FMOD::Sound* preloadMusic(gd::string path, bool p1, int p2) {
@@ -64,8 +63,7 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 		FMOD::Sound* result = FMODAudioEngine::sharedEngine()->preloadMusic(path, p1, p2);
 		// FMODAudioEngine::sharedEngine()->loadMusic(path, speed, p2, volume, shouldLoop, p5, p6);
 		if (!Utils::modEnabled() || !PlayLayer::get()) return result; // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
-		const std::string& parsedResult = MyFMODAudioEngine::parsePath(path);
-		Manager::getSharedInstance()->lastPlayedSong = std::filesystem::exists(path) ? parsedResult : std::string("{ ").append(parsedResult).append(" }");
+		Manager::getSharedInstance()->lastPlayedSong = MyFMODAudioEngine::parsePath(path);
 		return result;
 	}
 };

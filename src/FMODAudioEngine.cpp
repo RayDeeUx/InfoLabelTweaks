@@ -50,9 +50,9 @@ class $modify(MyFMODAudioEngine, FMODAudioEngine) {
 		}
 		return path;
 	}
-	FMODSound& preloadEffect(gd::string path) {
+	FMODSound* preloadEffect(gd::string path) {
 		const auto fields = m_fields.self();
-		FMODSound& result = FMODAudioEngine::sharedEngine()->preloadEffect(path);
+		FMODSound* result = FMODAudioEngine::sharedEngine()->preloadEffect(path);
 		if (!Utils::modEnabled() || !PlayLayer::get()) return result; // ignore if mod disabled, and dont record files outside of playlayer. should've done this sooner
 		if (std::ranges::find(fields->vanillaSFX, static_cast<std::string>(path)) != fields->vanillaSFX.end()) return result; // ignore vanilla sfx, the debug menu should only record sfx from the level itself
 		Manager::getSharedInstance()->lastPlayedEffect = MyFMODAudioEngine::parsePath(static_cast<std::string>(path));

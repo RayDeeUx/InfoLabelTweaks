@@ -226,7 +226,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (!fields->isEnabled) return "";
 		Manager* manager = Manager::getSharedInstance();
 		std::time_t tinnyTim = std::time(nullptr);
-		std::tm now = geode::localtime(&tinnyTim);
+		std::tm now = geode::localtime(tinnyTim);
 		std::string month = manager->months[now.tm_mon + 1];
 		int hour = now.tm_hour;
 		std::string ampm = "";

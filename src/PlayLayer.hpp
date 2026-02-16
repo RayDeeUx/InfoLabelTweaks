@@ -703,7 +703,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			"Rotate: {} / {}\n"
 			"Scale: {} / {}\n"
 			"ColOp: {} / {}",
-			this->level->m_levelID.value(),
+			this->m_level->m_levelID.value(),
 			this->m_gameState.m_levelTime,
 			this->m_attempts,
 			this->m_clicks,

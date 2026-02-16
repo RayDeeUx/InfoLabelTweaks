@@ -226,9 +226,9 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (!fields->isEnabled) return "";
 		Manager* manager = Manager::getSharedInstance();
 		std::time_t tinnyTim = std::time(nullptr);
-		std::tm* now = geode::localtime(&tinnyTim);
-		std::string month = manager->months[now->tm_mon + 1];
-		int hour = now->tm_hour;
+		std::tm now = geode::localtime(&tinnyTim);
+		std::string month = manager->months[now.tm_mon + 1];
+		int hour = now.tm_hour;
 		std::string ampm = "";
 		if (fields->twelveHour) {
 			if (hour > 12) {
@@ -240,15 +240,15 @@ class $modify(MyPlayLayer, PlayLayer) {
 			}
 		}
 		if (fields->shortMonth && month != "May") month = fmt::format("{}", month.substr(0, 3));
-		std::string dow = fields->dayOfWeek ? manager->daysOfWeek[now->tm_wday] : ""; // dow = day of week
+		std::string dow = fields->dayOfWeek ? manager->daysOfWeek[now.tm_wday] : ""; // dow = day of week
 		std::string dayOfWeek = !fields->dayOfWeek ? "" : fmt::format("{}, ", !fields->shortDayOfWeek ? dow : dow.substr(0, 3));
 		std::string dateMonth = fields->dayFirst ?
-			fmt::format("{} {}", now->tm_mday, month) : fmt::format("{} {}", month, now->tm_mday);
-		std::string seconds = fields->includeSeconds ? fmt::format(":{:02}", now->tm_sec % 60) : "";
+			fmt::format("{} {}", now.tm_mday, month) : fmt::format("{} {}", month, now.tm_mday);
+		std::string seconds = fields->includeSeconds ? fmt::format(":{:02}", now.tm_sec % 60) : "";
 		std::string separator = fields->splitDateAndTime ? "\nTime: " : " ";
-#ifndef GEODE_IS_WINDOWS
-		std::string timeZone = fields->useUTC ? getUTCOffset() : now->tm_zone;
-#else
+		#ifndef GEODE_IS_WINDOWS
+		std::string timeZone = fields->useUTC ? getUTCOffset() : now.tm_zone;
+		#else
 		/*
 		original approach: display UTC offset
 		didn't work for cvolton apparently because of 0 offset
@@ -283,10 +283,10 @@ class $modify(MyPlayLayer, PlayLayer) {
 		*/
 
 		std::string timeZone = getUTCOffset();
-#endif
+		#endif
 		return fmt::format("\nDate: {}{}, {}{}{:02}:{:02}{}{} {}",
-			dayOfWeek, dateMonth, now->tm_year + 1900, separator,
-			hour, now->tm_min, seconds, ampm, timeZone
+			dayOfWeek, dateMonth, now.tm_year + 1900, separator,
+			hour, now.tm_min, seconds, ampm, timeZone
 		);
 	}
 	static std::string getUTCOffset() {

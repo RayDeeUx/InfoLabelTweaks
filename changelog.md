@@ -1,4 +1,6 @@
 ## InfoLabelTweaks Changelog
+## v1.0.9
+- Port to GD 2.2081.
 ## v1.0.8
 - Experimental iOS support.
 ## v1.0.7

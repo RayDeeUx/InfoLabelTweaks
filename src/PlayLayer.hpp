@@ -547,9 +547,11 @@ class $modify(MyPlayLayer, PlayLayer) {
 		return (string.find(substring) != std::string::npos);
 	}
 	static bool isInfoLabel(const std::string &candidateString) {
-		return (xContainedInY("-- Audio --", candidateString, false) &&
-			   xContainedInY("-- Perf --", candidateString, false) &&
-			   xContainedInY("-- Area --", candidateString, false));
+		return (
+			xContainedInY("-- Audio --", candidateString, false) &&
+			xContainedInY("-- Perf --", candidateString, false) &&
+			xContainedInY("-- Area --", candidateString, false)
+		);
 	}
 	CCNode* findDebugTextNode() {
 		if (!PlayLayer::get()) return nullptr;
@@ -676,7 +678,53 @@ class $modify(MyPlayLayer, PlayLayer) {
 			if (fields->positionAlignBottom) debugTextNode->setPositionY(10);
 		}
 
-		std::string debugTextContents = debugTextNode->getString();
+		std::string debugTextContents = fmt::format(
+			"LevelID: {}\n"
+			"Time: {}\n"
+			"Attempt: {}\n"
+			"Taps: {}\n"
+			"TimeWarp: {}\n"
+			"Gravity: {}\n"
+			"X: {}\n"
+			"Y: {}\n"
+			"Active: {}\n"
+			"Gradients: {}\n"
+			"Particles: {}\n"
+			"-- Audio --\n"
+			"Songs: {}\n"
+			"SFX: {}\n"
+			"-- Perf --\n"
+			"Move: {}\n"
+			"Rotate: {}\n"
+			"Scale: {}\n"
+			"Follow: {}\n"
+			"-- Area --\n"
+			"Move: {} / {}\n"
+			"Rotate: {} / {}\n"
+			"Scale: {} / {}\n"
+			"ColOp: {} / {}",
+			this->level->m_levelID.value(),
+			this->m_gameState.m_levelTime,
+			this->m_attempts,
+			this->m_clicks,
+			this->m_gameState.m_timeWarp,
+			this->m_player1->m_gravityMod,
+			static_cast<int>(this->m_player1->m_position.x),
+			static_cast<int>(this->m_player1->m_position.y),
+			this->m_activeObjectsCount,
+			this->m_activeGradients,
+			this->m_particleCount,
+			FMODAudioEngine::get()->countActiveMusic(),
+			FMODAudioEngine::get()->countActiveEffects(),
+			this->m_movedCountDisplay,
+			this->m_rotatedCountDisplay,
+			this->m_scaledCountDisplay,
+			this->m_followedCountDisplay,
+			this->m_areaMovedCountTotalDisplay, this->m_areaMovedCountDisplay,
+			this->m_areaRotatedCountTotalDisplay, this->m_areaRotatedCountDisplay,
+			this->m_areaScaledCountTotalDisplay, this->m_areaScaledCountDisplay,
+			this->m_areaColorCountTotalDisplay, this->m_areaColorCountDisplay
+		);
 
 		if (fields->logDebugText)
 			log::info("\n--- LOGGED DEBUG TEXT [BEFORE INFOLABELTWEAKS] ---\n{}", debugTextContents);

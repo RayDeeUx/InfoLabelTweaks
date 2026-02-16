@@ -18,14 +18,15 @@ class $modify(MyMenuLayer, MenuLayer) {
 
 		auto loadedMods = 0;
 		auto disabledMods = 0;
-		auto problems = geode->getAllProblems().size();
+		int problems = 0;
 
 		std::ranges::for_each(mods, [&](const Mod *mod) {
-			if (geode->isModLoaded(mod->getID())) {
+			if (mod->isLoaded()) {
 				loadedMods++;
 			} else {
 				disabledMods++;
 			}
+			if (mod->getLoadProblem()) problems += 1;
 		});
 
 		manager->platform = GEODE_PLATFORM_NAME;

@@ -226,7 +226,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 		if (!fields->isEnabled) return "";
 		Manager* manager = Manager::getSharedInstance();
 		std::time_t tinnyTim = std::time(nullptr);
-		std::tm* now = std::localtime(&tinnyTim);
+		std::tm* now = geode::localtime(&tinnyTim);
 		std::string month = manager->months[now->tm_mon + 1];
 		int hour = now->tm_hour;
 		std::string ampm = "";
@@ -467,7 +467,7 @@ class $modify(MyPlayLayer, PlayLayer) {
 			else level = level.append(" (Unverified)");
 		} else {
 			if (m_level->m_levelType == GJLevelType::Saved) level = level.append(" (Online)");
-			else if (m_level->m_levelType == GJLevelType::Local) level = level.append(" (Official)");
+			else if (m_level->m_levelType == GJLevelType::Main) level = level.append(" (Main)");
 			else level = level.append(" (Unknown)");
 		}
 

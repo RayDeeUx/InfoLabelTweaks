@@ -43,7 +43,7 @@ class $modify(MyMenuLayer, MenuLayer) {
 };
 
 $on_mod(Loaded) {
-	listenForAllSettingChangesV3([](std::shared_ptr<SettingV3> setting){
+	listenForAllSettingChanges([](std::string_view key, std::shared_ptr<SettingV3> setting) {
 		if (const auto pl = PlayLayer::get()) static_cast<MyPlayLayer*>(pl)->setupSettings();
 	});
 }
